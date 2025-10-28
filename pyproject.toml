@@ -1,0 +1,54 @@
+[project]
+name = "pg-ecs-engine"
+version = "1.0.0"
+description = "An ECS wrapper for pygame"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "LGPL-2.1"
+license-files = ["LICEN[CS]E.*"]
+authors = [{name = "Kenzo Staelens", email="kenzostael@gmail.com"}]
+dependencies=[
+    'lazy_object_proxy',
+    'PyYAML',
+    'typing_extensions',
+]
+keywords=['pygame']
+classifiers = [
+  "Development Status :: 3 - Alpha",
+
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+
+[project.optional-dependencies]
+pygame = [
+    "pygame"
+]
+pygame-ce = [
+    'pygame-ce',
+]
+gui = [ # already depends pygame-ce
+    'pygame_gui>=0.6.14',
+]
+
+
+[project.urls]
+# Documentation = "https://readthedocs.org"
+Repository = "https://github.com/kenzo-staelens/pg_engine.git"
+Issues = "https://github.com/kenzo-staelens/pg_engine/issues"
+# Changelog = "https://github.com/kenzo-staelens/pg_engine/blob/master/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling >= 1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+packages = ["src/pg_engine"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pg_engine"]

@@ -1,0 +1,14 @@
+start_button:
+  classpath: pygame_gui.elements.UIButton
+  size:
+    - 100
+    - 20
+  offset:
+    - 0
+    - 0
+  anchors:
+    centerx: centerx
+    centery: centery
+  args:
+    text: A button
+  parent: default

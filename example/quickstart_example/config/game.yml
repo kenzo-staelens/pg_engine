@@ -1,0 +1,23 @@
+scenes:
+  - default
+  - main_scene
+debug_mode: false
+fps: 60
+singleton_instances:
+  - !classinit CollisionSystem
+  - !classinit EventSystem
+  - !classinit BaseSystemController
+  - !classinit Camera2D
+  - !classinit BaseRenderer
+  - !classinit PygameGuiUIManager
+  - !classinit
+      type: GameObjectBuilder
+      args:
+        builder_class: !classget GameObject
+        builder_kw:
+          transform_class: !classget TransformComponent2D
+  - !classinit
+      type: SceneBuilder
+      args:
+        builder_class: !classget Scene
+  - !classinit BaseGame

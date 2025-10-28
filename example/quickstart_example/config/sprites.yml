@@ -1,0 +1,11 @@
+sheet:
+  filename: sprites/example_spritesheet.png
+  width: 2
+  height: 2
+  colorkey: [0, 0, 0]
+  rect: [0, 0, 32, 32]
+  bindings:
+    - red
+    - green
+    - blue
+    - null

@@ -1,0 +1,28 @@
+game:
+  loader: YamlLoader
+  config: config/game.yml
+  processor: GameConfigProcessor
+display:
+  loader: YamlLoader
+  config: config/display.yml
+  processor: GraphicsProcessor
+  loader_args:
+    useref: config/ref.yml
+sprites:
+  loader: SpriteLoader
+  config: config/sprites.yml
+  registry: AssetRegistry
+scripts:
+  loader: ScriptLoader
+  config: scripts
+  registry: ScriptRegistry
+objects:
+  loader: GameObjectLoader
+  config: config/gameobjects.yml
+  registry: ObjectRegistry
+  loader_args:
+    useref: config/ref.yml
+ui:
+  loader: PygameGuiUILoader
+  config: config/ui.yml
+  registry: PygameGuiRegistry
