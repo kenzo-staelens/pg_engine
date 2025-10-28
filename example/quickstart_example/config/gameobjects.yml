@@ -1,0 +1,1 @@
+simple_gameobject: !include gameobjects/simple_gameobject.yml

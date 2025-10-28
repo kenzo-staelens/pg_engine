@@ -1,0 +1,49 @@
+
+[lint]
+preview = true
+select = ["ALL"]
+ignore = [
+    "CPY001",
+    "D100", "D101", "D102", "D103",
+    "D104", "D105", "D107",
+    "D211", "D212",
+    "T201",
+    "ANN002", "ANN003", "ANN204",
+    "EM102",
+    "FURB101", "FURB110",
+    "PTH123", "PLW1514",
+    "FBT001","FBT002","FBT003",
+    "TC001", "TC002", "TC003",
+    "UP007",
+    "FIX001", "FIX002", "FIX004",
+    "TD001", "TD002", "TD003",
+    "S311",
+    "DOC201", "DOC501"
+]
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+
+[lint.per-file-ignores]
+"__init__.py" = [
+    "E402", "I001",
+    "F401", "F403"
+]
+"tests/*" = [
+    "ANN001",
+    "ANN201",
+    "INP001",
+    "S101",
+    "PLC0415",
+    "PLR2004",
+    "S311",
+    "SIM117",
+    "S506"
+]
+"main.py" = [
+    "FIX002",
+]
+
+"docs/source/conf.py" = ["ALL"]
+
+"example/*" = ["INP001"]

@@ -1,0 +1,5 @@
+renderer:
+  display_mode:
+    size: *display_size
+uimanager:
+  window_resolution: *display_size

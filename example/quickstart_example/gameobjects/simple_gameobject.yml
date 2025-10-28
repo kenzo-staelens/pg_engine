@@ -1,0 +1,17 @@
+scene: default
+prefab: false
+components:
+  - type: TransformComponent2D
+    args:
+      x: 0
+      y: 0
+  - type: SpriteComponent
+    args:
+      asset: red
+      layer: 1
+  - type: ScriptComponent
+    refname: move_script
+    args:
+      scriptname: move_script
+      args:
+        step: 32

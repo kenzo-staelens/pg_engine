@@ -1,0 +1,37 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 88
+
+[*.{json,yml,yaml,rst,xml,html}]
+indent_size = 2
+max_line_length = 120
+
+[*.csv]
+indent_size = false
+indent_style = false
+max_line_length = false
+
+[*.md]
+indent_size = false
+max_line_length = 120
+trim_trailing_whitespace = false
+
+[*.{js,scss,css}]
+indent_size = 2
+
+[COMMIT_EDITMSG,*.po,*.pot]
+charset = false
+end_of_line = false
+indent_size = false
+indent_style = false
+insert_final_newline = false
+trim_trailing_whitespace = false
+max_line_length = false
+
