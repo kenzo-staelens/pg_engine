@@ -5,12 +5,15 @@ import math
 from abc import abstractmethod
 from collections.abc import Iterable
 
-from pg_engine.core import TTransformComponent
+from pg_engine.api import ITransformComponent
 from pg_engine.utils import apply_transform
 
 
 # NOTE: math might need an extra check to be sure
-class TransformComponent(TTransformComponent):
+class TransformComponent(ITransformComponent):
+    def update(self, dt: int) -> None:
+        pass
+
     def get_world_rotation(self) -> Iterable[int | float]:
         reference = self.rotation_reference
         return tuple(apply_transform(reference, self.rotation))

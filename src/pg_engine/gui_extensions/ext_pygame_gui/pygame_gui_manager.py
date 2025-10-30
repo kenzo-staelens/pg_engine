@@ -1,19 +1,12 @@
-from typing import final
-
 import pygame
 import pygame_gui
 
-from .config import TUImanagerConfig
-from .lib_abstract import TGame, TUIManager
-from .registry import UIRegistry
+from pg_engine.api import IGame, IUIManager
+from pg_engine.api.registry import UIRegistry
+from pg_engine.core.bases.config import TUImanagerConfig
 
 
-@final
-class PygameGuiRegistry(UIRegistry[pygame_gui.core.UIElement]):
-    ...
-
-
-class PygameGuiUIManager(TUIManager):
+class PygameGuiUIManager(IUIManager):
     def __init__(self):
         self.manager: pygame_gui.UIManager
         self.size: tuple[int, int]
@@ -41,9 +34,9 @@ class PygameGuiUIManager(TUIManager):
         self.size = ui_config['window_resolution']
 
     def set_active_scene(self, scene: str) -> None:  # noqa: PLR6301
-        UIRegistry.get(TGame().active_scene).hide()
+        UIRegistry.get(IGame().active_scene).hide()
         UIRegistry.get(scene).show()
 
     def hide_all(self) -> None:  # noqa: PLR6301
-        for scene in TGame().scenes:
+        for scene in IGame().scenes:
             UIRegistry.get(scene).hide()

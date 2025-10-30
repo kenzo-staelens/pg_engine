@@ -4,14 +4,14 @@ from collections.abc import Iterable
 
 import pygame
 
-from pg_engine.core import (
-    TColliderComponent,
-    TGame,
+from pg_engine.api import (
+    IColliderComponent,
+    IGame,
 )
 from pg_engine.utils import apply_transform
 
 
-class RectColliderComponent(TColliderComponent):
+class RectColliderComponent(IColliderComponent):
 
     """Rectangular shaped collider."""
 
@@ -51,7 +51,7 @@ class RectColliderComponent(TColliderComponent):
         """Do noting, Method expected by pygame groups."""
 
     def get_render_data(self) -> tuple[pygame.Surface, Iterable[int | float], int]:
-        if not (TGame().debug_mode and self.debug_mode):
+        if not (IGame().debug_mode and self.debug_mode):
             return (None,) * 3
         surf = pygame.Surface(self.rect.size)
         color_collision = (255, 0, 0)

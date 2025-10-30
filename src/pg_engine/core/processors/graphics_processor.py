@@ -3,25 +3,27 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 
+from pg_engine.api import (
+    IGame,
+    IProcessor,
+    IRenderer,
+    IUIManager,
+)
 from pg_engine.core import (
     TDisplayConfig,
-    TGame,
-    TProcessor,
-    TRenderer,
     TRendererConfig,
-    TUIManager,
     TUImanagerConfig,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class GraphicsProcessor(TProcessor):
+class GraphicsProcessor(IProcessor):
 
     """
     Specialized processor to configure graphics components.
 
-    :class:`TUIManager` and :class:`TRenderer`.
+    :class:`IUIManager` and :class:`IRenderer`.
     """
 
     @classmethod
@@ -47,15 +49,15 @@ class GraphicsProcessor(TProcessor):
                     meth,
                 )
                 continue
-            processor_meth: Callable[[TGame, dict], None] = getattr(cls, meth)
+            processor_meth: Callable[[IGame, dict], None] = getattr(cls, meth)
             processor_meth(conf)
 
     @classmethod
     def _configure_renderer(cls, renderer_config: TRendererConfig) -> None:
-        """Apply configurations as defined in :class:`TRendererConfig` onto a :class:`TRenderer` instance."""  # noqa: E501
-        TRenderer().configure(renderer_config)
+        """Apply configurations as defined in :class:`TRendererConfig` onto a :class:`IRenderer` instance."""  # noqa: E501
+        IRenderer().configure(renderer_config)
 
     @classmethod
     def _configure_uimanager(cls, ui_config: TUImanagerConfig) -> None:
-        """Apply configurations as defined in :class:`TUIManagerConfig` onto a :class:`TUIManager` instance."""  # noqa: E501
-        TUIManager().configure(ui_config)
+        """Apply configurations as defined in :class:`TUIManagerConfig` onto a :class:`IUIManager` instance."""  # noqa: E501
+        IUIManager().configure(ui_config)

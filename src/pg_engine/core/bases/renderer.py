@@ -2,16 +2,16 @@ from collections.abc import Iterable
 
 import pygame
 
+from pg_engine.api import ICamera, IGame, IGameObject, IRenderable, IRenderer
 from pg_engine.utils import apply_transform
 
 from .config import TRendererConfig
-from .lib_abstract import TGame, TGameObject, TGlobalCamera, TRenderable, TRenderer
 
 
-class BaseRenderer(TRenderer):
+class BaseRenderer(IRenderer):
     def __init__(self):
         super().__init__()
-        self.cache: dict[TGameObject, list[TRenderable]] = {}
+        self.cache: dict[IGameObject, list[IRenderable]] = {}
         self.cached_scene = None
 
     def update(self, dt: int) -> None:
@@ -35,7 +35,7 @@ class BaseRenderer(TRenderer):
     def apply_camera(cls, position: Iterable[int | float]) -> Iterable[int | float]:
         return apply_transform(
             position,
-            (-axis for axis in TGlobalCamera().position),
+            (-axis for axis in ICamera().position),
         )
 
     def clear(self) -> None:
@@ -48,13 +48,13 @@ class BaseRenderer(TRenderer):
         self.size = renderer_config['display_mode']['size']
 
     def update_cache(self) -> None:
-        scene_name = TGame().active_scene
+        scene_name = IGame().active_scene
         if self.cached_scene == scene_name and not self.scheduled_update:
             return
-        self.cache: list[TRenderable] = []
-        scene = TGame().scenes[scene_name]
+        self.cache: list[IRenderable] = []
+        scene = IGame().scenes[scene_name]
         for gameobject in scene.gameobjects:
-            renderable = gameobject.components.get_of_type(TRenderable)
+            renderable = gameobject.components.get_of_type(IRenderable)
             if not renderable:
                 continue
             self.cache += renderable

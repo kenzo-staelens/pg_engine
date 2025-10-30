@@ -2,12 +2,12 @@ import logging
 from collections.abc import Iterator
 from types import NoneType
 
-from .lib_abstract import TComponent, TContainer
+from pg_engine.api import IComponent, IContainer
 
 logger = logging.getLogger(__name__)
 
 
-class ObjectContainer[T](TContainer[T]):
+class ObjectContainer[T](IContainer[T]):
 
     """
     Generic[T] instantiable container class.
@@ -58,10 +58,10 @@ class ObjectContainer[T](TContainer[T]):
         return self.container.get(name)
 
 
-class ComponentContainer(ObjectContainer[TComponent]):
+class ComponentContainer(ObjectContainer[IComponent]):
 
-    """Type narrowed container for :class:`TComponent`."""
+    """Type narrowed container for :class:`IComponent`."""
 
     def __init__(self, source: object):
         super().__init__(source)
-        self._t = TComponent
+        self._t = IComponent

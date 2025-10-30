@@ -3,6 +3,7 @@ from . import core
 from . import components
 from . import systems
 from . import base_scripts
+from . import gui_extensions
 
 
 def init() -> None:

@@ -1,21 +1,21 @@
 from __future__ import annotations
 
-from .lib_abstract import TGameObject, TScene, TSceneBuilder
+from pg_engine.api import IGameObject, IScene, ISceneBuilder
 
 
-class SceneBuilder(TSceneBuilder):
-    def build(self, name: str, definition: dict | None = None) -> TScene:  # noqa: ARG002
+class SceneBuilder(ISceneBuilder):
+    def build(self, name: str, definition: dict | None = None) -> IScene:  # noqa: ARG002
         return self.builder_class(name)
 
 
-class Scene(TScene):
+class Scene(IScene):
     def __init__(self, name: str):
         super().__init__(name)
 
-    def add_gameobject(self, gameobject: TGameObject) -> None:
+    def add_gameobject(self, gameobject: IGameObject) -> None:
         self.gameobjects.append(gameobject)
 
-    def remove_gameobject(self, gameobject: TGameObject) -> None:
+    def remove_gameobject(self, gameobject: IGameObject) -> None:
         if gameobject in self.gameobjects:
             self.gameobjects.remove(gameobject)
 

@@ -2,12 +2,16 @@ from collections.abc import Iterable
 
 import pygame
 
-from pg_engine.core import TComponent, TRenderable, TRenderer
-from pg_engine.core.bases.registry import AssetRegistry
+from pg_engine.api import (
+    IComponent,
+    IRenderable,
+    IRenderer,
+)
+from pg_engine.api.registry import AssetRegistry
 from pg_engine.utils import apply_transform
 
 
-class SpriteComponent(TComponent, TRenderable):
+class SpriteComponent(IComponent, IRenderable):
     def __init__(
         self,
         asset: str,
@@ -15,8 +19,8 @@ class SpriteComponent(TComponent, TRenderable):
         rectmode: str = 'topleft',
         **kw,
     ):
-        TComponent.__init__(self, **kw)
-        TRenderable.__init__(self, layer, **kw)
+        IComponent.__init__(self, **kw)
+        IRenderable.__init__(self, layer, **kw)
         self.asset = AssetRegistry.get(asset)
         self.rectmode = rectmode
 
@@ -41,7 +45,7 @@ class SpriteComponent(TComponent, TRenderable):
 
     def scale(self, scale_by: float | Iterable[float]) -> None:
         self.asset = pygame.transform.scale_by(self.asset, scale_by)
-        TRenderer().scheduled_update = True
+        IRenderer().scheduled_update = True
 
     @property
     def origin(self) -> tuple[int, int]:

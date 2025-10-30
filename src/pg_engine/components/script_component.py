@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from pg_engine.core import TComponent, TScript
-from pg_engine.core.bases.registry import ScriptRegistry
+from pg_engine.api import IComponent, IScript
+from pg_engine.api.registry import ScriptRegistry
 
 
-class ScriptComponent(TComponent):
+class ScriptComponent(IComponent):
     def __init__(
         self,
         scriptname: str,
@@ -24,8 +24,8 @@ class ScriptComponent(TComponent):
         super().__init__(**kw)
         if args is None:
             args = {}
-        script_class: type[TScript] = ScriptRegistry.get(scriptname)
-        self.script: TScript = script_class(**args, source=self)
+        script_class: type[IScript] = ScriptRegistry.get(scriptname)
+        self.script: IScript = script_class(**args, source=self)
 
     def update(self, dt: int) -> None:
         """

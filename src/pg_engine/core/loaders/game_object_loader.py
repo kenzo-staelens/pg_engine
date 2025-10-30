@@ -3,16 +3,18 @@ from __future__ import annotations
 import logging
 import sys
 
+from pg_engine.api import (
+    IComponent,
+    IGame,
+    IGameObject,
+    IGameObjectBuilder,
+)
+from pg_engine.api.registry import PrefabRegistry
 from pg_engine.core import (
     ClassRegistry,
-    TComponent,
     TComponentConfig,
-    TGame,
-    TGameObject,
-    TGameObjectBuilder,
     TGameObjectConfig,
 )
-from pg_engine.core.bases.registry import PrefabRegistry
 from pg_engine.core.exit_codes import ExitCodes
 
 from .yaml_loader import YamlLoader
@@ -20,8 +22,8 @@ from .yaml_loader import YamlLoader
 logger = logging.getLogger(__name__)
 
 
-class GameObjectBuilder(TGameObjectBuilder):
-    def build(self, name: str, definition: TGameObjectConfig) -> TGameObject:
+class GameObjectBuilder(IGameObjectBuilder):
+    def build(self, name: str, definition: TGameObjectConfig) -> IGameObject:
         scene = definition.get('scene')
         if isinstance(scene, bool) or scene is None:
             scene = 'default'
@@ -33,7 +35,7 @@ class GameObjectBuilder(TGameObjectBuilder):
             **self.builder_kw,
         )
         ComponentBuilder.attach_components(go, definition.get('components', []))
-        TGame().scenes[scene].add_gameobject(go)
+        IGame().scenes[scene].add_gameobject(go)
         return go
 
 
@@ -44,17 +46,17 @@ class ComponentBuilder:
     @classmethod
     def attach_components(
         cls,
-        gameobject: TGameObject,
+        gameobject: IGameObject,
         components: list[TComponentConfig],
     ) -> None:
         """
         Attach one or more components to a gameobject from definition.
 
         .. note::
-            The :attr:`TComponent.source` is set during creation of the component.
+            The :attr:`IComponent.source` is set during creation of the component.
 
         :param gameobject: Gameobject to attach to
-        :type gameobject: TGameObject
+        :type gameobject: IGameObject
         :param components: list of component definitions
         :type components: list[TComponentConfig]
         """
@@ -66,22 +68,22 @@ class ComponentBuilder:
     def create_component(
         cls,
         component_def: TComponentConfig,
-        game_object: TGameObject | None = None,
-    ) -> tuple[str, TComponent]:
+        game_object: IGameObject | None = None,
+    ) -> tuple[str, IComponent]:
         """
         Construct a gameobject from definition.
 
         :param component_def: Blueprint of the component
         :type component_def: TComponentConfig
         :param game_object: game object to use as source parameter, defaults to None
-        :type game_object: TGameObject | None, optional
+        :type game_object: IGameObject | None, optional
         :return: name (from refname) or type of the component and the constructed component
         :rtype: tuple[str, TComponent]
         """  # noqa: E501
         c_type = component_def['type']
         refname = component_def.get('refname', c_type)
         args = component_def['args'] or {}
-        component_class: type[TComponent] | None = ClassRegistry.get(c_type)
+        component_class: type[IComponent] | None = ClassRegistry.get(c_type)
         if not component_class:
             logger.critical(
                 'Component[%s]: Could not find registry entry',
@@ -101,12 +103,12 @@ class GameObjectLoader(YamlLoader):
 
     """Specialized loader for loading and constructing gameobjects from configurations."""  # noqa: E501
 
-    def load(self) -> dict[str, TGameObject]:
+    def load(self) -> dict[str, IGameObject]:
         """
         Load gameobjects from a yaml file.
 
         :return: Returns a processable dictionary containing constructed gameobjects.
-        :rtype: dict[str, TGameObject]
+        :rtype: dict[str, IGameObject]
         """
         data: dict[str, TGameObjectConfig] = super().load()
         loaded = {}
@@ -115,7 +117,7 @@ class GameObjectLoader(YamlLoader):
                 del definition['prefab']
                 self.register_loaded(name, definition, registry=PrefabRegistry)
                 continue
-            game_object = TGame().objectbuilder.build(
+            game_object = IGame().objectbuilder.build(
                 name=name,
                 definition=definition,
             )

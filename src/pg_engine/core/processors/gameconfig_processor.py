@@ -1,10 +1,10 @@
-from pg_engine.core import TGame, TProcessor
+from pg_engine.api import IGame, IProcessor
 from pg_engine.core.bases.config import TInstanceConfig
 
 
-class GameConfigProcessor(TProcessor):
+class GameConfigProcessor(IProcessor):
 
-    """Specialized processor to configure core :class:`TGame` instances."""
+    """Specialized processor to configure core :class:ITGame` instances."""
 
     @classmethod
     def process(
@@ -13,7 +13,7 @@ class GameConfigProcessor(TProcessor):
         processor_args: None = None,  # noqa: ARG003
     ) -> None:
         """
-        Configure a :class:`TGame` instance after loading.
+        Configure a :class:`IGame` instance after loading.
 
         - Construct :attr:`TInstanceConfig.scenes`
         - Add a scene 'default' if not found
@@ -25,7 +25,7 @@ class GameConfigProcessor(TProcessor):
         :param processor_args: not used, defaults to None
         :type processor_args: None, optional
         """
-        game = TGame()
+        game = IGame()
 
         for scene in config['scenes']:
             scene_object = game.scenebuilder.build(scene)

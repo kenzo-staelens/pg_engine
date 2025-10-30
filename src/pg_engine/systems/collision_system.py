@@ -5,13 +5,13 @@ from collections.abc import Callable
 
 import pygame
 
-from pg_engine.core import (
-    TColliderComponent,
-    TCollisionSystem,
-    TEventSystem,
-    TGame,
-    TGameObject,
-    TScript,
+from pg_engine.api import (
+    IColliderComponent,
+    ICollisionSystem,
+    IEventSystem,
+    IGame,
+    IGameObject,
+    IScript,
 )
 
 from .event_system import EventListener, Scope, listen
@@ -30,7 +30,7 @@ logger.debug("Registered event type 'COLLISION' as %d", COLLISION)
 logger.debug("Registered event type 'TRIGGER' as %d", TRIGGER)
 
 
-class CollisionScript(TScript, EventListener):
+class CollisionScript(IScript, EventListener):
 
     """
     Minimal (dumb) collision script base.
@@ -63,7 +63,7 @@ class CollisionScript(TScript, EventListener):
         self.source.transform.move(self.store_phys, True)
 
 
-class CollisionSystem(TCollisionSystem):
+class CollisionSystem(ICollisionSystem):
     def __init__(self):
         """
         Initialize the collision system.
@@ -73,7 +73,7 @@ class CollisionSystem(TCollisionSystem):
         - a set of interractions to track
         """
         super().__init__()
-        self.collision_layers: dict[str, list[TColliderComponent]] = {}
+        self.collision_layers: dict[str, list[IColliderComponent]] = {}
         self.interractions: set[frozenset[str]] = set()
 
     def update(self, dt: int) -> None:
@@ -101,8 +101,8 @@ class CollisionSystem(TCollisionSystem):
             # by setting killa or killb to true
             # currently not implemented
             collisions: dict[
-                TColliderComponent,
-                list[TColliderComponent],
+                IColliderComponent,
+                list[IColliderComponent],
             ] = pygame.sprite.groupcollide(
                 g1, g2,
                 False, False,
@@ -135,8 +135,8 @@ class CollisionSystem(TCollisionSystem):
     @staticmethod
     def _create_collision_event(
         event_type: int,
-        target: TColliderComponent,
-        collides_with: list[TColliderComponent],
+        target: IColliderComponent,
+        collides_with: list[IColliderComponent],
         dt: int,
         is_system_event: bool = False,
     ) -> None:
@@ -146,9 +146,9 @@ class CollisionSystem(TCollisionSystem):
         :param event_type: Event for the collision type `COLLISION` or `TRIGGER`
         :type event_type: int
         :param target: target to send the event to
-        :type target: TColliderComponent
+        :type target: IColliderComponent
         :param collides_with: source of the event
-        :type collides_with: list[TColliderComponent]
+        :type collides_with: list[IColliderComponent]
         :param dt: milliseconds since last frame, added to event data
         :type dt: int
         :param is_system_event: is a system event, defaults to False
@@ -162,7 +162,7 @@ class CollisionSystem(TCollisionSystem):
                 'dt': dt,
             },
         ]
-        TEventSystem().send(*send_data, system=is_system_event)
+        IEventSystem().send(*send_data, system=is_system_event)
 
     def get_groups(self, interraction: frozenset[str], physics: bool) -> tuple[
         pygame.sprite.Group,
@@ -174,7 +174,7 @@ class CollisionSystem(TCollisionSystem):
             is_self_collision = True
             interraction = tuple(interraction) * 2
         groups = []
-        active_scene = TGame().active_scene
+        active_scene = IGame().active_scene
         for layer in interraction:
             group = pygame.sprite.Group(
                 [
@@ -187,7 +187,7 @@ class CollisionSystem(TCollisionSystem):
             groups.append(group)
         return *groups, is_self_collision
 
-    def add(self, collider_component: TColliderComponent, layer: str) -> None:
+    def add(self, collider_component: IColliderComponent, layer: str) -> None:
         layer_data = self.collision_layers.get(layer, [])
         if not layer_data:
             self.collision_layers[layer] = layer_data
@@ -198,7 +198,7 @@ class CollisionSystem(TCollisionSystem):
             frozenset((layer1, layer2)),
         )
 
-    def remove_gameobject(self, gameobject: TGameObject) -> None:
+    def remove_gameobject(self, gameobject: IGameObject) -> None:
         for layer, colliders in self.collision_layers.items():
             self.collision_layers[layer] = [
                 collider for collider in colliders if collider.source != gameobject

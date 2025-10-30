@@ -3,7 +3,7 @@ from .bases import *
 from . import loaders
 from .loaders import GameConfigLoader
 from . import processors
-from .bases import registry
+from pg_engine.api import registry
 
 for reg in [
     registry.ScriptRegistry,

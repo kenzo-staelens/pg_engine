@@ -6,14 +6,13 @@ from typing import Any
 
 import pygame
 
-from pg_engine.core.bases.registry import PrefabRegistry
-
-from .lib_abstract import TGame, TGameObject
+from pg_engine.api import IGame, IGameObject
+from pg_engine.api.registry import PrefabRegistry
 
 logger = logging.getLogger(__name__)
 
 
-class BaseGame(TGame):
+class BaseGame(IGame):
 
     """Minimal implementation of a game object."""
 
@@ -60,13 +59,13 @@ class BaseGame(TGame):
 
     def spawn(
         self,
-        spawn_source: TGameObject,
+        spawn_source: IGameObject,
         scene: str,
         object_def_name: str,
-        post_process: Callable[[TGameObject], None] | None = None,
-    ) -> TGameObject:
+        post_process: Callable[[IGameObject], None] | None = None,
+    ) -> IGameObject:
         if post_process is None:
-            def post_process(go: TGameObject) -> TGameObject:
+            def post_process(go: IGameObject) -> IGameObject:
                 pass
         object_config = PrefabRegistry.get(object_def_name)
         gameobject = self.objectbuilder.build(object_def_name, object_config)

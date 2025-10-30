@@ -7,16 +7,16 @@ from queue import Queue
 
 import pygame
 
-from pg_engine.core import (
+from pg_engine.api import (
+    IEventSystem,
+    IGame,
+    IGameObject,
+    IScene,
+    IScript,
     PostInit,
     Singleton,
-    TEventSystem,
-    TGame,
-    TGameObject,
-    TScene,
-    TScript,
-    one_shot,
 )
+from pg_engine.core.bases import one_shot
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +45,8 @@ class ListenerContainer:
         # the sooner these are filtered out the less work we have to do
         # when we have an event we actually listen for we'll at least
         # likely have a record that listens to it making the work useful
-        self.listeners: dict[int, dict[TGameObject, list[Callable]]] = {}
-        self.broadcast_listeners: dict[int, dict[TScene | None, list[Callable]]] = {}
+        self.listeners: dict[int, dict[IGameObject, list[Callable]]] = {}
+        self.broadcast_listeners: dict[int, dict[IScene | None, list[Callable]]] = {}
 
     @staticmethod
     def _add_listener_to(
@@ -80,7 +80,7 @@ class ListenerContainer:
     def add_listener(
         self,
         evt_type: int,
-        listener: TGameObject,
+        listener: IGameObject,
         method: Callable,
     ) -> None:
         """
@@ -89,7 +89,7 @@ class ListenerContainer:
         :param evt_type: Event type the method listens for
         :type evt_type: int
         :param listener: the object owning the listener
-        :type listener: TGameObject
+        :type listener: IGameObject
         :param method: the listener callable
         :type method: Callable
         """
@@ -98,7 +98,7 @@ class ListenerContainer:
     def add_broadcast(
         self,
         evt_type: int,
-        scene: TScene | None,
+        scene: IScene | None,
         method: Callable,
     ) -> None:
         """
@@ -107,7 +107,7 @@ class ListenerContainer:
         :param evt_type: Event type the method listens for
         :type evt_type: int
         :param listener: the object owning the listener
-        :type listener: TGameObject
+        :type listener: IGameObject
         :param method: the listener callable
         :type method: Callable
         """
@@ -129,18 +129,18 @@ class ListenerContainer:
         # by scene
         if defined_listener is None:
             return self._read_listener(event, self.broadcast_listeners, None)
-        if isinstance(defined_listener, TScene):
+        if isinstance(defined_listener, IScene):
             # broadcast scene
             listener = defined_listener.name
             return self._read_listener(event, self.broadcast_listeners, listener)
-        if isinstance(defined_listener, TGameObject):
+        if isinstance(defined_listener, IGameObject):
             return self._read_listener(event, self.listeners, defined_listener)
 
         # other cannot determine
         message = f'cannot search listeners for type {defined_listener.__class__}'
         raise NotImplementedError(message)
 
-    def remove_gameobject(self, gameobject: TGameObject) -> None:
+    def remove_gameobject(self, gameobject: IGameObject) -> None:
         for listenerdict in self.listeners.values():
             if gameobject in listenerdict:
                 del listenerdict[gameobject]
@@ -166,7 +166,7 @@ class SystemEventQueue(Singleton):
         self.queue.put(event)
 
 
-class EventSystem(TEventSystem):
+class EventSystem(IEventSystem):
     def __init__(self):
         super().__init__()
         self.event_hooks: ListenerContainer = ListenerContainer()
@@ -182,8 +182,8 @@ class EventSystem(TEventSystem):
             event_source = pygame.event
         for event in event_source.get():
             if event.type == pygame.QUIT:
-                TGame().stop()
-            if TGame().uimanager.process_events(event):
+                IGame().stop()
+            if IGame().uimanager.process_events(event):
                 # event processed by pygame_gui are not our
                 # responsibility
                 continue
@@ -194,7 +194,7 @@ class EventSystem(TEventSystem):
     def send(
         cls,
         event_type: int,
-        targets: list[TGameObject] | None,
+        targets: list[IGameObject] | None,
         data: dict | None = None,
         system: bool = False,
     ) -> None:
@@ -221,7 +221,7 @@ class EventSystem(TEventSystem):
         data: dict | None = None,
         system: bool = False,
     ) -> None:
-        scene = TGame().scenes.get(scene_name)
+        scene = IGame().scenes.get(scene_name)
         cls.send(event_type, targets=[scene], data=data, system=system)
 
     @classmethod
@@ -231,7 +231,7 @@ class EventSystem(TEventSystem):
     def register_event_hook(
             self,
             event_type: int,
-            listener: TGameObject | None,
+            listener: IGameObject | None,
             hook: Callable[[pygame.Event], None],
         ) -> None:
         logger.debug(
@@ -245,12 +245,12 @@ class EventSystem(TEventSystem):
     def register_broadcast_hook(
         self,
         event_type: int,
-        scene: TScene | None,
+        scene: IScene | None,
         hook: Callable[[pygame.Event], None],
     ) -> None:
         self.event_hooks.add_broadcast(event_type, scene, hook)
 
-    def remove_gameobject(self, gameobject: TGameObject) -> None:
+    def remove_gameobject(self, gameobject: IGameObject) -> None:
         self.event_hooks.remove_gameobject(gameobject)
 
     def get_sequence_hooks(self) -> list[Callable[[int], None]]:
@@ -297,7 +297,7 @@ class EventListener(metaclass=EventListenerMeta):
     def __post_init__(self):
         """Register event listener hooks on object initialization."""
         for listener in self.__create_event_listeners__:
-            sys = TEventSystem()
+            sys = IEventSystem()
             evt_type, scope, fn_name = listener
             # it's hard to have the name wrong unless you forget to functools.wrap
             fn: Callable = getattr(self, fn_name)
@@ -310,14 +310,14 @@ class EventListener(metaclass=EventListenerMeta):
                     sys.register_event_hook(evt_type, self, fn)
 
     @property
-    def scene(self) -> TScene:
+    def scene(self) -> IScene:
         return self.source.scene
 
 
 # BUG: inheriting and changing a collider breaks listening for that collider
 @one_shot
 def listen(
-    fn: Callable[[TScript, pygame.Event], None],
+    fn: Callable[[IScript, pygame.Event], None],
     owner: type[EventListener],
     /,
     event_type: int,

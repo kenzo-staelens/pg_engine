@@ -1,11 +1,11 @@
 from contextvars import ContextVar, Token
 from typing import Any, final
 
-from .lib_singleton import TRegistry
+from pg_engine.api import IRegistry
 
 
 @final
-class ContextRegistry(TRegistry[ContextVar]):
+class ContextRegistry(IRegistry[ContextVar]):
 
     """
     Singleton class to centralize context var access.

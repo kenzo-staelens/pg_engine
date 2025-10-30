@@ -1,9 +1,9 @@
 from collections.abc import Iterable
 
-from .lib_abstract import TGlobalCamera
+from pg_engine.api import ICamera
 
 
-class Camera2D(TGlobalCamera):
+class Camera2D(ICamera):
     def __init__(
         self,
         x: int = 0,

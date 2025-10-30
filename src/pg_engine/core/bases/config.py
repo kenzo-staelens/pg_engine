@@ -4,8 +4,7 @@ from typing import Any, Required, TypedDict
 
 import pygame
 
-from .lib_abstract import TGameObject, TScript
-from .lib_singleton import Singleton
+from pg_engine.api import IGameObject, IScript, Singleton
 
 """
 Collection of all configurations possible in yaml format.
@@ -90,8 +89,8 @@ class TGlobalGameConfig(TypedDict):
     game: LoadedGameConfig
     display: TDisplayConfig
     sprites: dict[str, pygame.Surface]
-    scripts: dict[str, TScript]
-    objects: dict[str, TGameObject]
+    scripts: dict[str, IScript]
+    objects: dict[str, IGameObject]
     ui: dict[str, Any]
 
 

@@ -2,17 +2,20 @@ from __future__ import annotations
 
 import pathlib
 from collections.abc import Callable
+from functools import partial
 from typing import Any
 
 import yaml
 from yaml.nodes import Node
 
+from pg_engine.api import (
+    ILoader,
+    IRegistry,
+)
 from pg_engine.core import (
     ClassRegistry,
     Context,
     ContextRegistry,
-    TLoader,
-    TRegistry,
 )
 
 from .lazy_proxy import Proxy
@@ -20,12 +23,12 @@ from .lazy_proxy import Proxy
 BASE_PATH = pathlib.Path(__file__).parent.parent.parent.parent
 
 
-def get_factory_method(registry: TRegistry, proxy: str) -> Callable:
+def get_factory_method(registry: IRegistry, proxy: str) -> Callable:
     """
     Create a factory method for lazy loader.
 
     :param registry: registry to load from
-    :type registry: TRegistry
+    :type registry: IRegistry
     :param proxy: name of the object being proxied
     :type proxy: str
     :return: factory method used by :class:`Proxy`
@@ -77,15 +80,18 @@ class YamlConstructors(ConsumeRefs):
         :type node: Node
         :return: yaml loaded content of the included file
         :rtype: dict
-        :raises RuntimeError: raised when including from another included file
+        :raises RuntimeError: raised when including without a root
         """
         if not self.root:
-            message = 'Cannot Include from another include'
+            message = 'Cannot Include without a root'
             raise RuntimeError(message)
 
         filename = self.construct_scalar(node)
-        with open(self.root / filename) as f:
-            return yaml.load(f, YamlConstructors)  # noqa: S506
+        with open(self.root / filename) as stream:
+            return yaml.load(
+                stream,
+                partial(YamlConstructors, root=self.root),  # noqa: S506
+            )
 
     def lazy(self, node: Node) -> Proxy:
         """
@@ -103,7 +109,7 @@ class YamlConstructors(ConsumeRefs):
         :rtype: :class:`~.base_library.core.loaders.Proxy`
         """
         mapping = self.construct_mapping(node)
-        reg: TRegistry = ClassRegistry.get(mapping['target_registry'])()
+        reg: IRegistry = ClassRegistry.get(mapping['target_registry'])()
         factory = get_factory_method(reg, mapping['proxies'])
 
         return Proxy(factory)
@@ -195,7 +201,7 @@ YamlConstructors.add_constructor('!classinit', YamlConstructors.classinit)
 YamlConstructors.add_constructor('!classget', YamlConstructors.classget)
 
 
-class YamlLoader(TLoader):
+class YamlLoader(ILoader):
 
     """Base class for loaders that load in a yaml file format."""
 
@@ -203,7 +209,7 @@ class YamlLoader(TLoader):
         self,
         filename: str,
         root: pathlib.PosixPath,
-        registry: TRegistry,
+        registry: IRegistry,
         useref: str | list[str] | None = None,
     ):
         """
@@ -215,7 +221,7 @@ class YamlLoader(TLoader):
         :type root: str
         :param registry: registry this loader stores loaded objects into,\
             defaults to None
-        :type registry: TRegistry
+        :type registry: IRegistry
         :param useref: file or files to use as anchor references, defaults to None
         :type useref: str | list[str] | None, optional
         """

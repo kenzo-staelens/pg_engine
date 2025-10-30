@@ -4,18 +4,18 @@ import importlib
 import logging
 from abc import ABC, abstractmethod
 from types import ModuleType
-from typing import Any, final
+from typing import Any
 
 import pygame
 
-from pg_engine.core import TUIManager, UIConfig
+from pg_engine.core import UIConfig
 
 from .yaml_loader import YamlLoader
 
 logger = logging.getLogger(__name__)
 
 
-class TUIContainer:
+class IUIContainer:
 
     """Type hinting based on pygame_gui."""
 
@@ -61,7 +61,7 @@ class UILoader[T](YamlLoader, ABC):
     @classmethod
     @abstractmethod
     def init_scenes(cls) -> None:
-        """Construct and initialize scene objects from scenes in :class:`TGame`."""
+        """Construct and initialize scene objects from scenes in :class:`IGame`."""
 
     @classmethod
     @abstractmethod
@@ -127,7 +127,7 @@ class UILoader[T](YamlLoader, ABC):
                 )
                 self.register_loaded(key, ui_object)
                 if 'parent' in conf:
-                    container: TUIContainer = self.registry.get(conf['parent'])
+                    container: IUIContainer = self.registry.get(conf['parent'])
                     container.add_element(ui_object)
 
             except Exception:
@@ -141,53 +141,3 @@ class UILoader[T](YamlLoader, ABC):
 
             loaded[key] = ui_object
         return loaded
-
-
-class DummyUIManager(TUIManager):
-
-    """Dummy class for when no UI extensions are available."""
-
-    def __init__(self):
-        super().__init__()
-
-    def draw_ui(self, render_surface: pygame.Surface) -> None:
-        pass
-
-    def hide_all(self) -> None:
-        pass
-
-    def process_events(self, event: pygame.Event) -> bool:  # noqa: ARG002, PLR6301
-        return False
-
-    def set_active_scene(self, scene: str) -> None:
-        pass
-
-    def set_visual_debug_mode(self, state: bool) -> None:
-        pass
-
-    def update(self, dt: int) -> None:
-        pass
-
-
-class DummyUILoader(UILoader[Any]):
-
-    """Dummy class for when no UI extensions are available."""
-
-    @classmethod
-    def create_ui_object(
-        cls,
-        name: str,
-        object_class: type,
-        relative_rect: pygame.Rect,
-        anchors: dict,
-        definition: dict,
-    ) -> Any:  # noqa: ANN401
-        pass
-
-    @classmethod
-    def init_scenes(cls) -> None:
-        pass
-
-    @final
-    def load(self) -> dict[str, Any]:  # noqa: PLR6301
-        return {}

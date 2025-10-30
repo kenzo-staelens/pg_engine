@@ -5,9 +5,9 @@ import logging
 import pygame
 from pygame_gui.core import UIContainer, UIElement
 
-from pg_engine.core import Context, TGame, TUIManager
-
-from .ui_loader import UILoader
+from pg_engine.api import IGame, IUIManager
+from pg_engine.core import Context
+from pg_engine.core.loaders import UILoader
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +17,11 @@ class PygameGuiUILoader(UILoader[UIElement]):
     """Implementation of :class:`UILoader` to load pygame_gui UIs."""
 
     def init_scenes(self) -> None:
-        manager = TUIManager().manager
-        for scene in TGame().scenes:
+        manager = IUIManager().manager
+        for scene in IGame().scenes:
             container = UIContainer(
                 manager=manager,
-                relative_rect=pygame.Rect(0, 0, *TUIManager().size),
+                relative_rect=pygame.Rect(0, 0, *IUIManager().size),
             )
             self.register_loaded(scene, container)
 
@@ -34,7 +34,7 @@ class PygameGuiUILoader(UILoader[UIElement]):
         anchors: dict,
         definition: dict,
     ) -> UIElement:
-        manager = TUIManager().manager
+        manager = IUIManager().manager
         # pygamegui needs the parent object *now* for calculating position
         # based on anchors -> lazy not allowed though you can sequence the ui without
         # circular dependencies

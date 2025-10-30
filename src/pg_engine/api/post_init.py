@@ -9,3 +9,8 @@ class PostInit(ABCMeta):
         instance = super().__call__(*args, **kw)  # < runs __new__ and __init__
         instance.__post_init__()
         return instance
+
+
+__all__ = [
+    'PostInit',
+]

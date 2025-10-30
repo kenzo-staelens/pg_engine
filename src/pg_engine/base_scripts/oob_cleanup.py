@@ -1,7 +1,7 @@
-from pg_engine.core import TScript
+from pg_engine.api import IScript
 
 
-class OOBCleanup(TScript):
+class OOBCleanup(IScript):
 
     """
     Script that handles out of bounds cleanup for objects.

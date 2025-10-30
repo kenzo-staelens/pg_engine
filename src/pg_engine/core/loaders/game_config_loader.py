@@ -4,17 +4,19 @@ import logging
 import pathlib
 import sys
 
+from pg_engine.api import (
+    IGame,
+    ILoader,
+    IProcessor,
+    IRegistry,
+)
+from pg_engine.api.registry import ClassRegistry
 from pg_engine.core import (
-    ClassRegistry,
     Context,
     Initializer,
     TConfigFile,
-    TGame,
     TGlobalGameConfig,
     TLoadableConfig,
-    TLoader,
-    TProcessor,
-    TRegistry,
 )
 from pg_engine.core.exit_codes import ExitCodes
 
@@ -31,7 +33,7 @@ class GameConfigLoader(YamlLoader):
         self,
         filename: str,
         root: pathlib.PosixPath,
-        registry: TRegistry | None = None,
+        registry: IRegistry | None = None,
         **kw,
     ):
         super().__init__(filename=filename, root=root, registry=registry, **kw)
@@ -147,18 +149,18 @@ class GameConfigLoader(YamlLoader):
                     sys.exit(ExitCodes.EXIT_CODE_INVALID_KEYS)
 
                 # aqcuire loaders and processors
-                loader: type[TLoader] = ClassRegistry.get(conf['loader'])
+                loader: type[ILoader] = ClassRegistry.get(conf['loader'])
                 loader_args: dict = conf.get('loader_args') or {}
                 processor_args = {}
                 if 'processor' in conf:
-                    processor: TProcessor = ClassRegistry.get(conf['processor'])
+                    processor: IProcessor = ClassRegistry.get(conf['processor'])
                     processor_args = conf.get('processor_args', {}) or {}
                 else:
                     # keep it as a dummy
                     # though invalid processors still get flagged
                     processor = type(
                         'DummyProcessor',
-                        (TProcessor,),
+                        (IProcessor,),
                         {'process': lambda _, __: None},
                     )
 
@@ -192,4 +194,4 @@ class GameConfigLoader(YamlLoader):
         """
         Initializer.init()
         cls(config).load()
-        TGame().run()
+        IGame().run()

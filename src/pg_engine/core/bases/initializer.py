@@ -5,7 +5,7 @@ from typing import ClassVar, final
 
 import pygame
 
-from .lib_singleton import Singleton
+from pg_engine.api.singleton import Singleton
 
 
 @final
