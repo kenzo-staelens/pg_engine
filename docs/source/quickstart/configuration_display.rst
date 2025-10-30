@@ -3,7 +3,7 @@
 Display Configuration
 =====================
 
-The display configuration, albeit small, is used to configure engine components that handle rendering and other user interractions like :class:`~pg_engine.core.bases.lib_abstract.TRenderer` and :class:`~pg_engine.core.bases.lib_abstract.TUIManager`. It is also the first file in this quickstart guide that uses a reference file for it's data.
+The display configuration, albeit small, is used to configure engine components that handle rendering and other user interractions like :class:`~pg_engine.api.interface_renderer.IRenderer` and :class:`~pg_engine.api.interface_uimanager.IUIManager`. It is also the first file in this quickstart guide that uses a reference file for it's data.
 
 .. code-block:: yaml
    :emphasize-lines: 3,4
@@ -34,4 +34,4 @@ Loaders subclassing from :class:`~pg_engine.core.loaders.YamlLoader` are able to
       - 400
       - 400
 
-In this example we are using the reference data to set the size of both our renderer and uimanager's sizes to a 400 by 400 pixel square which we can easily change without accidentally forgetting to update the other. In our Root configuration file we are using ``GraphicsProcessor`` to apply these settings on our renderer and uimanager instances without the loader having to know how or what instances must be configured as *it's* job is to only load the data in a usable form.
+In this example we are using the reference data to set the size of both our renderer and uimanager's sizes to a 400 by 400 pixel square which we can easily change without accidentally forgetting to update the other. In our Root configuration file we are using :class:`~pg_engine.core.processors.graphics_processor.GraphicsProcessor` to apply these settings on our renderer and uimanager instances without the loader having to know how or what instances must be configured as *it's* job is to only load the data in a usable form.

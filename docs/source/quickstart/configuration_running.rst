@@ -5,7 +5,7 @@ Running your game
 
 Given the fairly extensive configuration done before this point, it makes it now makes it fairly trivial to run your game from a single configuration file.
 
-A first step in starting the game is, just like you would with pygame is calling init of PG_Engine, it will handle the registration of all built in or otherwise provided engine parts, gameobject components and other code that may need registration as well as calling ``pygame.init()``.
+A first step in starting the game is, just like you would with pygame is calling init of PG_Engine, it will handle the registration of all built in or otherwise provided engine parts, gameobject components and other code that may need registration as well as calling :py:func:`pygame.init`.
 
 .. code-block:: python
 
@@ -37,7 +37,8 @@ Last we just need to start the game.
    :emphasize-lines: 2,12,13
 
    import pg_engine
-   from pg_engine.core import GameConfigLoader, TGame
+   from pg_engine.api import IGame
+   from pg_engine.core import GameConfigLoader
 
    pg_engine.init()
 
@@ -47,13 +48,13 @@ Last we just need to start the game.
        filename='config/config.yml',
        root=config_root,
    ).load()
-   TGame().run()
+   IGame().run()
    pg_engine.quit()  # cleaning up like responsible developers
 
 
-If your IDE has a type checker active it may complain that :class:`~pg_engine.core.bases.lib_abstract.TGame` is an abstract class. Under normal circumstances an abstract class cannot be instantiated.
-   
-Instead ``TGame()`` stands in a proxy for the game instance type you defined in :ref:`config_gameinstance` (we used :class:`~pg_engine.core.bases.base_game.BaseGame` in this tutorial). This is possible due to the singleton nature of ``TGame`` which lets it skip normal instantiation in favor of an existing instance.
+If your IDE has a type checker active it may complain that :class:`~pg_engine.api.interface_game.IGame` is an abstract class. Under normal circumstances an abstract class cannot be instantiated.
+
+Instead ``IGame()`` stands in a proxy for the game instance type you defined in :ref:`config_gameinstance` (we used :class:`~pg_engine.core.bases.base_game.BaseGame` in this tutorial). This is possible due to the singleton nature of ``IGame`` which lets it skip normal instantiation in favor of an existing instance.
 
 .. hint::
 
@@ -61,23 +62,23 @@ Instead ``TGame()`` stands in a proxy for the game instance type you defined in 
 
    .. code-block:: python
 
-      from pg_engine.core.bases import TGame, Singleton
-   
-      game: TGame = Singleton.get('Game')
+      from pg_engine.api import IGame, Singleton
+
+      game: IGame = Singleton.get('Game')
       game.run()
 
-If your game uses collisions, configuration of collision layers has not yet been implemented and must be enabled before your game starts running (though it is technically still possible to enable them at runtime). Bot layers in :func:`~base_game.core.systems.CollisionSystem.enable_collision` are interchangeable and each unique enabled combination must therefore only be registered once. Collision layers may collide with themselves and will ignore gameobjects colliding with themselves.
+If your game uses collisions, configuration of collision layers has not yet been implemented and must be enabled before your game starts running (though it is technically still possible to enable them at runtime). Both layers in :func:`~pg_engine.api.interface_system_collision.ICollisionSystem.enable_collision` are interchangeable and each unique enabled combination must therefore only be registered once. Collision layers may collide with themselves and will ignore gameobjects colliding with themselves.
 
 .. code-block:: python
    :emphasize-lines: 1,2,3,4
 
-   TGame().system_controller.collision_system.enable_collision(
+   IGame().system_controller.collision_system.enable_collision(
        'collision_layer_1',
        'collision_layer_2'
    )
-   TGame().run()
+   IGame().run()
    pg_engine.quit()  # cleaning up like responsible developers
 
 .. note::
-   
+
    hot reloading is not supported, though everything from standard pygame still applies.

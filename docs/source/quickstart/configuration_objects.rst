@@ -24,7 +24,7 @@ The configuration for game objects is possibly one of the most important configu
    .. code-block:: yaml
 
       simple_gameobject: !include gameobjects/simple_gameobject.yml
-    
+
 For the sake of this tutorial we will be constructing a simple gameobject using data already loaded before in :ref:`config_scripts` and :ref:`config_sprites`
 
 .. code-block:: yaml
@@ -49,7 +49,7 @@ For the sake of this tutorial we will be constructing a simple gameobject using 
 
 Despite this configution being fairly short, a lot of things are still happening. First off is the ``scene`` key, it tells the program where a game object will be spawned into. The key (nor value) is required and will default to the "default" scene. Objects in different scenes will not be able to interract with eachother.
 
-A second value in the above configuration is ``prefab``, although it is not defined in any configuration file, when using the :class:`~pg_engine.core.loaders.game_object_loader.GameObjectLoader` instead of trying to load a gameobject into the game world it's definition will be stored in the :term:`PrefabRegistry` for easier access to scripts (see also :func:`pg_engine.core.bases.lib_abstract.TGame.spawn`).
+A second value in the above configuration is ``prefab``, although it is not defined in any configuration file, when using the :class:`~pg_engine.core.loaders.game_object_loader.GameObjectLoader` instead of trying to load a gameobject into the game world it's definition will be stored in the :term:`PrefabRegistry` for easier access to scripts (see also :func:`pg_engine.api.interface_game.IGame.spawn`).
 
 the last part of defining a game object is it's components. PG_Engine is based on an Entity Component System (`ECS <https://en.wikipedia.org/wiki/Entity_component_system>`_ for short), therefore each component is responsible for one task on the gameobject, like tracking it's position, holding on to rendering data, etc. ``components`` is a list of mappings with two required keys (each) to be considered valid.
 
@@ -75,7 +75,7 @@ the last part of defining a game object is it's components. PG_Engine is based o
 The first requirement is a type, like :class:`~pg_engine.components.transform_component.TransformComponent2D`, it is a class found in the :term:`ClassRegistry` (more on creating custom components in :ref:`programming_components`). The second requirement is the arguments (``args``) passed to the class's constructor, they serve as initial values for the component as soon as the game starts. Arguments may be left empty (but not omitted) if the class contains no arguments or they have defaults built into the class (like ``angle`` in this case).
 
 .. note::
-   
+
    Using the concrete implementation of :class:`~pg_engine.components.game_object.GameObject` a transform component may be omitted and one will be constructed on the fly as soon as it is requested. from the one defined in :ref:`config_gameinstance`.
 
    .. code-block:: yaml
@@ -112,6 +112,6 @@ Components can contain a third optional key ``refname``. By default a component 
 
 .. note::
 
-   Script components do take a slightly more complex argument structure as each script itself can additionally define one or more arguments to be set as default values. The outer args (line 12) take the name of an exported/imported script from :ref:`config_scripts` and keyword arguments (inner args, line 14) passed to the script's ``__init__``. 
-   
+   Script components do take a slightly more complex argument structure as each script itself can additionally define one or more arguments to be set as default values. The outer args (line 12) take the name of an exported/imported script from :ref:`config_scripts` and keyword arguments (inner args, line 14) passed to the script's ``__init__``.
+
    This component's ``refname`` and ``scriptname`` can have different values.

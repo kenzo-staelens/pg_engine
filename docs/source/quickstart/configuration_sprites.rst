@@ -32,7 +32,7 @@ The next step in loading game data is loading images from a spritesheet, we will
       :alt: spritesheet image corresponging with the above configuration
 
 With defining the example out of the way, let's start off with the spritesheet configuration and then circle back to what the registry key is for.
-First is the filename/path, this is the *relative* path starting at the root passed to the :class:`~pg_engine.core.lib_abstract.TLoader` instance (here ``SpriteLoader``) and in this example points to the image above.
+First is the filename/path, this is the *relative* path starting at the root passed to the :class:`~pg_engine.api.interface_loader.ILoader` instance (here :class:`~pg_engine.core.loaders.sprite_loader.SpriteLoader`) and in this example points to the image above.
 
 width, height, rect and bindings define how many images will get loaded, how big they are and where they are located in the spritesheet.
 

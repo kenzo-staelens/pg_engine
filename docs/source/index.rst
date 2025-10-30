@@ -52,6 +52,7 @@ Go to our :ref:`quickstart` to set up your first project. Even though this modul
    quickstart
    terms
    api
+   changelog
 
 Indices and tables
 ==================

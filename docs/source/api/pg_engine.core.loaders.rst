@@ -28,14 +28,6 @@ pg\_engine.core.loaders.lazy\_proxy module
    :show-inheritance:
    :undoc-members:
 
-pg\_engine.core.loaders.pygame\_gui\_loader module
---------------------------------------------------
-
-.. automodule:: pg_engine.core.loaders.pygame_gui_loader
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 pg\_engine.core.loaders.script\_loader module
 ---------------------------------------------
 

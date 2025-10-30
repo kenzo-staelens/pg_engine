@@ -1,6 +1,6 @@
 import pygame
 
-from pg_engine.core import TScript
+from pg_engine.api import IScript
 from pg_engine.systems import (
     EventListener,
     Scope,
@@ -8,7 +8,7 @@ from pg_engine.systems import (
 )
 
 
-class MoveScript(TScript, EventListener):
+class MoveScript(IScript, EventListener):
     __exports__ = 'move_script'
 
     def __init__(self, step: int, **kw):

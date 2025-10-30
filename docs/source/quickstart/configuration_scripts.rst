@@ -21,7 +21,7 @@ For this example i will be showing two ways scripts get loaded by the builtin Sc
    └── move_script.py
 
 .. collapse:: Optional content of __init__.py
-   
+
    .. code-block:: python
 
       from pg_engine.base_scripts import OOBCleanup
@@ -33,20 +33,20 @@ For this example i will be showing two ways scripts get loaded by the builtin Sc
 
       import pygame
 
-      from pg_engine.core import TScript
+      from pg_engine.api import IScript
       from pg_engine.systems import (
           EventListener,
           Scope,
           listen,
       )
-      
-      class MoveScript(TScript, EventListener):
+
+      class MoveScript(IScript, EventListener):
           __exports__ = 'move_script'
-      
+
           def __init__(self, step: int, **kw):
               super().__init__(**kw)
               self.step = step
-      
+
           @listen(event_type=pygame.KEYDOWN, scope=Scope.BROADCAST)
           def listen_movement(self, event: pygame.event.Event) -> None:
               match event.key:
@@ -58,7 +58,7 @@ For this example i will be showing two ways scripts get loaded by the builtin Sc
                       self.source.transform.move((0, -self.step))
                   case pygame.K_DOWN:
                       self.source.transform.move((0, self.step))
-      
+
       __all__ = [
           'MoveScript',
       ]
@@ -73,6 +73,6 @@ the second method is providing script files as is in the scripts directory (``co
    only scripts with :term:`__exports__` set will be exported
 
 .. warning::
-    
+
    Use ``__init__.py`` only to load scripts from external sources into your game.
    If scripts are already being provided in the scripts directory this will cause PG_Engine to attempt to load the scripts twice.

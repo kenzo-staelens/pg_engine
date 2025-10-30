@@ -20,14 +20,6 @@ pg\_engine.core.bases.camera module
    :show-inheritance:
    :undoc-members:
 
-pg\_engine.core.bases.class\_registry module
---------------------------------------------
-
-.. automodule:: pg_engine.core.bases.class_registry
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 pg\_engine.core.bases.config module
 -----------------------------------
 
@@ -56,46 +48,6 @@ pg\_engine.core.bases.initializer module
 ----------------------------------------
 
 .. automodule:: pg_engine.core.bases.initializer
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-pg\_engine.core.bases.lib\_abstract module
-------------------------------------------
-
-.. automodule:: pg_engine.core.bases.lib_abstract
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-pg\_engine.core.bases.lib\_meta module
---------------------------------------
-
-.. automodule:: pg_engine.core.bases.lib_meta
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-pg\_engine.core.bases.lib\_singleton module
--------------------------------------------
-
-.. automodule:: pg_engine.core.bases.lib_singleton
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-pg\_engine.core.bases.pygame\_gui\_uimanager module
----------------------------------------------------
-
-.. automodule:: pg_engine.core.bases.pygame_gui_uimanager
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-pg\_engine.core.bases.registry module
--------------------------------------
-
-.. automodule:: pg_engine.core.bases.registry
    :members:
    :show-inheritance:
    :undoc-members:

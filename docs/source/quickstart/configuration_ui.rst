@@ -51,14 +51,14 @@ The last parameter is ``parent``, like the above mentioned two it is also not re
 
 .. note::
 
-   :class:`~pg_engine.core.loaders.pygame_gui_loader.PygameGuiUILoader` will automatically create :py:class:`pygame_gui.core.UIContainer` instances for each scene covering the ui manager's screen space.
+   :class:`~pg_engine.gui_extensions.ext_pygame_gui.pygame_gui_loader.PygameGuiUILoader` will automatically create :py:class:`pygame_gui.core.UIContainer` instances for each scene covering the ui manager's screen space.
 
 .. warning::
 
    UI elements without parent will not be managed by scene switching or UI hierarchies.
 
 
-If you prefer to not use any gui elements (or otherwise have no gui library installed) PG_Engine still requires defining a UI manager and UI Loader. if none are available a :class:`~pg_engine.core.loaders.ui_loader.DummyUILoader` and :class:`~pg_engine.core.loaders.ui_loader.DummyUIManager` are provided to function as placeholders.
+If you prefer to not use any gui elements (or otherwise have no gui library installed) PG_Engine still requires defining a UI manager and UI Loader. if none are available a :class:`~pg_engine.gui_extensions.ext_dummy.dummy_loader.DummyUILoader` and :class:`~pg_engine.gui_extensions.ext_dummy.dummy_manager.DummyUIManager` are provided to function as placeholders.
 
 If you are following this tutorial the following changes are required to disable it's use.
 

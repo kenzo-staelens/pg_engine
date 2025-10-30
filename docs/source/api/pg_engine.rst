@@ -7,9 +7,11 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   pg_engine.api
    pg_engine.base_scripts
    pg_engine.components
    pg_engine.core
+   pg_engine.gui_extensions
    pg_engine.logging
    pg_engine.systems
 

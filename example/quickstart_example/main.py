@@ -1,7 +1,8 @@
 import pathlib
 
 import pg_engine
-from pg_engine.core import GameConfigLoader, TGame
+from pg_engine.api import IGame
+from pg_engine.core import GameConfigLoader
 
 pg_engine.init()
 
@@ -12,5 +13,5 @@ GameConfigLoader(
     root=config_root,
 ).load()
 
-TGame().run()
+IGame().run()
 pg_engine.quit()
