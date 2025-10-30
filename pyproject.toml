@@ -11,6 +11,7 @@ dependencies=[
     'lazy_object_proxy',
     'PyYAML',
     'typing_extensions',
+    'cachetools',
 ]
 keywords=['pygame']
 classifiers = [

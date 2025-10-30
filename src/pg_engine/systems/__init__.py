@@ -14,9 +14,13 @@ from .collision_system import (
     CollisionScript,
 )
 
-from pg_engine.core.bases import ClassRegistry, Initializer
+from .audio_system import AudioSystem
+
+from pg_engine.api.registry import ClassRegistry
+from pg_engine.core.bases import Initializer
 
 for to_initialize in [
+    AudioSystem,
     BaseSystemController,
     EventSystem,
     CollisionSystem,
@@ -34,6 +38,7 @@ __all__ = [
     'TRIGGER',
 
     # classes
+    'AudioSystem',
     'BaseSystemController',
     'CollisionScript',
     'CollisionSystem',

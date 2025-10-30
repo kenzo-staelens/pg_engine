@@ -24,6 +24,7 @@ from .interface_renderer import IRenderer
 from .interface_scene import IScene
 from .interface_script import IScript
 
+from .interface_system_audio import IAudioSystem
 from .interface_system_collision import ICollisionSystem
 from .interface_system_controller import ISystemController
 from .interface_system_event import IEventSystem
