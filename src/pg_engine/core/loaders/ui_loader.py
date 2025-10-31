@@ -8,7 +8,7 @@ from typing import Any
 
 import pygame
 
-from pg_engine.core import UIConfig
+from pg_engine.core import TUIConfig
 
 from .yaml_loader import YamlLoader
 
@@ -26,7 +26,7 @@ class IUIContainer:
 
 class UILoader[T](YamlLoader, ABC):
     @classmethod
-    def _validate_configs(cls, element: str, config: UIConfig) -> bool:
+    def _validate_configs(cls, element: str, config: TUIConfig) -> bool:
         """
         Verify whether required keys are available in a UI configuration.
 
@@ -36,7 +36,7 @@ class UILoader[T](YamlLoader, ABC):
         :param element: name of the ui element being loaded
         :type element: str
         :param config: Configuration data of the ui element
-        :type config: UIConfig
+        :type config: TUIConfig
         :return: whether the configuration is valid
         :rtype: bool
         """
@@ -94,7 +94,7 @@ class UILoader[T](YamlLoader, ABC):
         """
 
     def load(self) -> dict[str, T]:
-        data: dict[str, UIConfig] = super().load() or {}
+        data: dict[str, TUIConfig] = super().load() or {}
         loaded = {}
         self.init_scenes()
         for key, conf in data.items():

@@ -3,7 +3,7 @@ import pygame_gui
 
 from pg_engine.api import IGame, IUIManager
 from pg_engine.api.registry import UIRegistry
-from pg_engine.core.bases.config import TUImanagerConfig
+from pg_engine.core.bases.config import TUIManagerConfig
 
 
 class PygameGuiUIManager(IUIManager):
@@ -23,12 +23,12 @@ class PygameGuiUIManager(IUIManager):
     def set_visual_debug_mode(self, state: bool) -> None:
         self.manager.set_visual_debug_mode(state)
 
-    def configure(self, ui_config: TUImanagerConfig) -> None:
+    def configure(self, ui_config: TUIManagerConfig) -> None:
         """
         Configure the window resolution for this a :class:`pygame_gui.UIManager`.
 
         :param ui_config: configuration dictionary
-        :type ui_config: TUImanagerConfig
+        :type ui_config: TUIManagerConfig
         """
         self.manager = pygame_gui.UIManager(**ui_config)
         self.size = ui_config['window_resolution']

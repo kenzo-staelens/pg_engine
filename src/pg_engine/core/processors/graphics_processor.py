@@ -12,7 +12,7 @@ from pg_engine.api import (
 from pg_engine.core import (
     TDisplayConfig,
     TRendererConfig,
-    TUImanagerConfig,
+    TUIManagerConfig,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,6 +58,6 @@ class GraphicsProcessor(IProcessor):
         IRenderer().configure(renderer_config)
 
     @classmethod
-    def _configure_uimanager(cls, ui_config: TUImanagerConfig) -> None:
+    def _configure_uimanager(cls, ui_config: TUIManagerConfig) -> None:
         """Apply configurations as defined in :class:`TUIManagerConfig` onto a :class:`IUIManager` instance."""  # noqa: E501
         IUIManager().configure(ui_config)

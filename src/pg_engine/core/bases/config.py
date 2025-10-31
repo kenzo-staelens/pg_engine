@@ -66,14 +66,14 @@ class TRendererConfig(TypedDict, total=True):
     display_mode: DisplayModeKey
 
 
-class TUImanagerConfig(TypedDict, total=True):
+class TUIManagerConfig(TypedDict, total=True):
     #: window resolution of the UI
     window_resolution: tuple[int, int]
 
 
 class TDisplayConfig(TypedDict, total=True):
     renderer: TRendererConfig
-    uimanager: TUImanagerConfig
+    uimanager: TUIManagerConfig
 
 
 class LoadedGameConfig(TypedDict):
@@ -127,7 +127,7 @@ class TGameObjectConfig(TypedDict, total=False):
     prefab: bool
 
 
-class UIConfig(TypedDict, total=False):
+class TUIConfig(TypedDict, total=False):
     classpath: Required[str]
     size: Required[tuple[int, int]]
     offset: Required[tuple[int, int]]
@@ -145,6 +145,6 @@ __all__ = [
     'TLoadableConfig',
     'TRendererConfig',
     'TSpriteConfig',
-    'TUImanagerConfig',
-    'UIConfig',
+    'TUIConfig',
+    'TUIManagerConfig',
 ]

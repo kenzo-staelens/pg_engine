@@ -30,13 +30,13 @@ class AudioSystem(IAudioSystem):
         filename: str,
         channel: str | None = None,
         play_args: dict[str, Any] | None = None,
-    ) -> None:
+    ) -> pygame.mixer.Sound:
         """
         Play audio from a file.
 
-        uses :py.func:`pygame.mixer.Sound.play` when no channel selected
+        uses :py:func:`pygame.mixer.Sound.play` when no channel selected
 
-        otherwise uses :py.func:`pygame.mixer.Channel.queue`
+        otherwise uses :py:func:`pygame.mixer.Channel.queue`
 
         :param filename: File to find the audio in.
         :type filename: str
@@ -50,6 +50,7 @@ class AudioSystem(IAudioSystem):
             self.channels[channel].queue(sound)
         else:
             sound.play(**(play_args or {}))
+        return sound
 
     @ttl_cache(maxsize=8, ttl=60)
     def _find_sound(self, filename: str) -> pygame.mixer.Sound:

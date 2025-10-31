@@ -1,3 +1,4 @@
+.. _index:
 .. PG_Engine documentation master file, created by
    sphinx-quickstart on Wed Oct 22 16:37:09 2025.
    You can adapt this file completely to your liking, but it should at least
@@ -49,9 +50,10 @@ Go to our :ref:`quickstart` to set up your first project. Even though this modul
    :maxdepth: 2
    :caption: Contents:
 
+   Home <self>
    quickstart
    terms
-   api
+   api/modules
    changelog
 
 Indices and tables
