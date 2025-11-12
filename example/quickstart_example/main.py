@@ -6,7 +6,7 @@ from pg_engine.core import GameConfigLoader
 
 pg_engine.init()
 
-config_root = pathlib.Path(__file__).parent
+config_root = pathlib.PosixPath(__file__).parent
 
 GameConfigLoader(
     filename='config/config.yml',

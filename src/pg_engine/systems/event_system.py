@@ -4,6 +4,8 @@ import logging
 from collections.abc import Callable
 from enum import Enum
 from queue import Queue
+from types import MethodType
+from typing import Any, cast
 
 import pygame
 
@@ -17,6 +19,8 @@ from pg_engine.api import (
     Singleton,
 )
 from pg_engine.core.bases import one_shot
+
+type CastListenerDict = dict[int, dict[object, list[Callable]]]
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +50,7 @@ class ListenerContainer:
         # when we have an event we actually listen for we'll at least
         # likely have a record that listens to it making the work useful
         self.listeners: dict[int, dict[IGameObject, list[Callable]]] = {}
-        self.broadcast_listeners: dict[int, dict[IScene | None, list[Callable]]] = {}
+        self.broadcast_listeners: dict[int, dict[IScene, list[Callable]]] = {}
 
     @staticmethod
     def _add_listener_to(
@@ -93,7 +97,15 @@ class ListenerContainer:
         :param method: the listener callable
         :type method: Callable
         """
-        self._add_listener_to(evt_type, listener, method, self.listeners)
+        self._add_listener_to(
+            evt_type,
+            listener,
+            method,
+            cast(
+                'CastListenerDict',
+                self.listeners,
+            ),
+        )
 
     def add_broadcast(
         self,
@@ -111,11 +123,19 @@ class ListenerContainer:
         :param method: the listener callable
         :type method: Callable
         """
-        self._add_listener_to(evt_type, scene, method, self.broadcast_listeners)
+        self._add_listener_to(
+            evt_type,
+            scene,
+            method,
+            cast(
+                'CastListenerDict',
+                self.broadcast_listeners,
+            ),
+        )
 
     @staticmethod
     def _read_listener(
-            event: pygame.Event,
+            event: pygame.event.Event,
             listener_dict: dict[int, dict[object, list[Callable]]],
             listener_target: object | None,
         ) -> list[Callable]:
@@ -123,18 +143,30 @@ class ListenerContainer:
 
     def get_listeners(
             self,
-            event: pygame.Event,
+            event: pygame.event.Event,
         ) -> list[Callable]:
         defined_listener = event.dict.get('listener')
         # by scene
         if defined_listener is None:
-            return self._read_listener(event, self.broadcast_listeners, None)
+            return self._read_listener(
+                event,
+                cast('CastListenerDict', self.broadcast_listeners),
+                None,
+            )
         if isinstance(defined_listener, IScene):
             # broadcast scene
             listener = defined_listener.name
-            return self._read_listener(event, self.broadcast_listeners, listener)
+            return self._read_listener(
+                event,
+                cast('CastListenerDict', self.broadcast_listeners),
+                listener,
+            )
         if isinstance(defined_listener, IGameObject):
-            return self._read_listener(event, self.listeners, defined_listener)
+            return self._read_listener(
+                event,
+                cast('CastListenerDict', self.listeners),
+                defined_listener,
+            )
 
         # other cannot determine
         message = f'cannot search listeners for type {defined_listener.__class__}'
@@ -148,7 +180,9 @@ class ListenerContainer:
             for scene, by_scene_list in broadcastdict.items():
                 # filter by owning object
                 broadcastdict[scene] = [
-                    x for x in by_scene_list if x.__self__ is not gameobject
+                    x
+                    for x in by_scene_list
+                    if cast('MethodType', x).__self__ is not gameobject
                 ]
 
 
@@ -159,10 +193,10 @@ class SystemEventQueue(Singleton):
         super().__init__()
         self.queue = Queue()
 
-    def get(self) -> list[pygame.Event]:
+    def get(self) -> list[pygame.event.Event]:
         return [self.queue.get() for _ in range(self.queue.qsize())]
 
-    def put(self, event: pygame.Event) -> None:
+    def put(self, event: pygame.event.Event) -> None:
         self.queue.put(event)
 
 
@@ -231,22 +265,26 @@ class EventSystem(IEventSystem):
     def register_event_hook(
             self,
             event_type: int,
-            listener: IGameObject | None,
-            hook: Callable[[pygame.Event], None],
+            listener: IGameObject,
+            hook: Callable[[pygame.event.Event], None],
         ) -> None:
         logger.debug(
             'EventSystem: Registering event hook [%s(%d)] -> %s',
             pygame.event.event_name(event_type),
             event_type,
-            hook.__name__,
+            hook.__name__ if hasattr(hook, '__name__') else 'nameless hook',
         )
-        self.event_hooks.add_listener(event_type, listener, hook)
+        self.event_hooks.add_listener(
+            event_type,
+            listener,
+            hook,
+        )
 
     def register_broadcast_hook(
         self,
         event_type: int,
         scene: IScene | None,
-        hook: Callable[[pygame.Event], None],
+        hook: Callable[[pygame.event.Event], None],
     ) -> None:
         self.event_hooks.add_broadcast(event_type, scene, hook)
 
@@ -255,6 +293,10 @@ class EventSystem(IEventSystem):
 
     def get_sequence_hooks(self) -> list[Callable[[int], None]]:
         return [self.update]
+
+
+class WithListeners:
+    __create_event_listeners__: list
 
 
 class EventListenerMeta(PostInit):
@@ -272,7 +314,7 @@ class EventListenerMeta(PostInit):
         :term:`__create_listener_list__` is set to False
     """
 
-    def __new__(meta, name: str, bases: tuple[type, ...], attrs: dict[str]):
+    def __new__(meta, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
         if (
             # HACK: root class should not have a __create_event_listeners__
             # but all of it's first decendents should define it
@@ -285,14 +327,26 @@ class EventListenerMeta(PostInit):
             if '__create_event_listeners__' not in attrs:
                 break
             if '__create_event_listeners__' in base.__dict__:
-                attrs['__create_event_listeners__'] += base.__create_event_listeners__
+                attrs['__create_event_listeners__'] += cast(
+                    'WithListeners',
+                    base,
+                ).__create_event_listeners__
         attrs['__create_listener_list__'] = True
         return super().__new__(meta, name, bases, attrs)
+
+
+# for typehint
+class WithScene:
+    scene: IScene
 
 
 class EventListener(metaclass=EventListenerMeta):
     # HACK: this classvar only exists here for typehinting purposes
     __create_event_listeners__: list
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.source: WithScene
 
     def __post_init__(self):
         """Register event listener hooks on object initialization."""
@@ -317,7 +371,7 @@ class EventListener(metaclass=EventListenerMeta):
 # BUG: inheriting and changing a collider breaks listening for that collider
 @one_shot
 def listen(
-    fn: Callable[[IScript, pygame.Event], None],
+    fn: Callable[[IScript, pygame.event.Event], None],
     owner: type[EventListener],
     /,
     event_type: int,
@@ -333,11 +387,17 @@ def listen(
 
        @listen(event_type = ..., scope = ...)
        @other_decorators
-       def event_listener_method(self, event: pygame.Event) -> None:
+       def event_listener_method(self, event: pygame.event.Event) -> None:
            ...
 
     .. warning::
         inheriting existing listener methods causes only the first defined to be called\
         including with super calls
     """
+    if not hasattr(fn, '__name__'):
+        logger.critical('Attempted to create event listener without a name %s', fn)
+        raise ValueError(fn)
     owner.__create_event_listeners__.append((event_type, scope, fn.__name__))
+    # we're doing a hack with descriptors;
+    # this just stops the typechecker from complaining
+    return cast('Callable[[int], None]', None)

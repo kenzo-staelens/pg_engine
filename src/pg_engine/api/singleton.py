@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import logging
 import weakref
-from typing import ClassVar, Self, final
+from typing import ClassVar, Self, cast, final
 
 logger = logging.getLogger(__name__)
+
+
+class SingletonError(ValueError): ...
 
 
 class Singleton:
@@ -62,12 +65,15 @@ class Singleton:
                 'Singleton[%s]: __singleton_key__ cannot be None',
                 cls.__name__,
             )
-            return None
+            raise SingletonError(cls.__name__)
         if cls.__singleton_key__ not in cls._instances:
             instance = super().__new__(cls)
             instance.__init__(*args, **kw)
             Singleton._instances[cls.__singleton_key__] = instance
-        return weakref.proxy(Singleton._instances[cls.__singleton_key__])
+        return cast(
+            'Self',
+            weakref.proxy(Singleton._instances[cls.__singleton_key__]),
+        )
 
     @classmethod
     def get(cls, name: str, default: Singleton | None = None) -> Singleton | None:

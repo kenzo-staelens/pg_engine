@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 from .interface_component import IComponent
 from .interface_transform import ITransform
@@ -10,7 +10,7 @@ class ITransformComponent(ITransform, IComponent, ABC):
     """Base class for translate/rotate components."""
 
     @abstractmethod
-    def get_world_position(self) -> Iterable[int | float]:
+    def get_world_position(self) -> Sequence[int | float]:
         """
         World Position of the transform.
 
@@ -18,11 +18,11 @@ class ITransformComponent(ITransform, IComponent, ABC):
             until this object's transform is added.
 
         :return: Iterable of coordinates e.g. `(x, y)`
-        :rtype: Iterable[int | float]
+        :rtype: Sequence[int | float]
         """
 
     @abstractmethod
-    def get_world_rotation(self) -> Iterable[int | float]:
+    def get_world_rotation(self) -> Sequence[int | float]:
         """
         World Rotation of the transform.
 
@@ -30,7 +30,7 @@ class ITransformComponent(ITransform, IComponent, ABC):
             until this object's transform is added.
 
         :return: Iterable of coordinates e.g. `(angle,)`
-        :rtype: Iterable[int | float]
+        :rtype: Sequence[int | float]
         """
 
 

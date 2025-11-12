@@ -2,7 +2,7 @@ from collections.abc import Iterable
 
 import pygame
 
-from pg_engine.api import ICamera, IGame, IGameObject, IRenderable, IRenderer
+from pg_engine.api import ICamera, IGame, IRenderable, IRenderer
 from pg_engine.utils import apply_transform
 
 from .config import TRendererConfig
@@ -11,7 +11,7 @@ from .config import TRendererConfig
 class BaseRenderer(IRenderer):
     def __init__(self):
         super().__init__()
-        self.cache: dict[IGameObject, list[IRenderable]] = {}
+        self.cache: list[IRenderable] = {}
         self.cached_scene = None
 
     def update(self, dt: int) -> None:
@@ -51,7 +51,7 @@ class BaseRenderer(IRenderer):
         scene_name = IGame().active_scene
         if self.cached_scene == scene_name and not self.scheduled_update:
             return
-        self.cache: list[IRenderable] = []
+        self.cache = []
         scene = IGame().scenes[scene_name]
         for gameobject in scene.gameobjects:
             renderable = gameobject.components.get_of_type(IRenderable)

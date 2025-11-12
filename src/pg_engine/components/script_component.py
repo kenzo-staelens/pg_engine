@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from pg_engine.api import IComponent, IScript
 from pg_engine.api.registry import ScriptRegistry
+
+logger = logging.getLogger(__name__)
 
 
 class ScriptComponent(IComponent):
@@ -24,7 +27,9 @@ class ScriptComponent(IComponent):
         super().__init__(**kw)
         if args is None:
             args = {}
-        script_class: type[IScript] = ScriptRegistry.get(scriptname)
+        script_class: type[IScript] | None = ScriptRegistry.get(scriptname)
+        if not script_class:
+            return
         self.script: IScript = script_class(**args, source=self)
 
     def update(self, dt: int) -> None:

@@ -53,3 +53,6 @@ packages = ["src/pg_engine"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pg_engine"]
+
+[tool.ty.rules]
+unresolved-import = "ignore"

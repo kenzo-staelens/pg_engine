@@ -115,7 +115,7 @@ class TComponentConfig(TypedDict, total=False):
     #: optional component name to prevent access by name collisions
     refname: str | None
     #: arguments passed to the component class
-    args: Required[dict[str] | None]
+    args: Required[dict[str, Any] | None]
 
 
 class TGameObjectConfig(TypedDict, total=False):

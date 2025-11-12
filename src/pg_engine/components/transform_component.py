@@ -4,6 +4,7 @@ import functools
 import math
 from abc import abstractmethod
 from collections.abc import Iterable
+from typing import cast
 
 from pg_engine.api import ITransformComponent
 from pg_engine.utils import apply_transform
@@ -18,12 +19,15 @@ class TransformComponent(ITransformComponent):
         reference = self.rotation_reference
         return tuple(apply_transform(reference, self.rotation))
 
-    def get_world_position(self) -> Iterable[int, int]:
+    def get_world_position(self) -> tuple[int, int]:
         with_rotation = self._rotate_coordinate(
             self.position_reference,
             self.get_world_rotation(),
         )
-        return tuple(apply_transform(with_rotation, self.position))
+        return cast(
+            'tuple[int, int]',
+            tuple(apply_transform(with_rotation, self.position)),
+        )
 
     @property
     @abstractmethod
@@ -131,7 +135,7 @@ class TransformComponent2D(TransformComponent):
     def _rotate_coordinate(
         coordinate: tuple[int, int],
         angle: tuple[int],
-    ) -> tuple[int, int]:
+    ) -> tuple[int | float, int | float]:
         rad = math.radians(angle[0])
         rotation = (math.cos(rad) + math.sin(rad) * 1j)
         complex_coordinate = coordinate[0] + coordinate[1] * 1j

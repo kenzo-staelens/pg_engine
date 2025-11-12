@@ -43,12 +43,12 @@ class IUIManager(Singleton, IConfigurable, ABC):
         """
 
     @abstractmethod
-    def process_events(self, event: pygame.Event) -> bool:
+    def process_events(self, event: pygame.event.Event) -> bool:
         """
         Process an event.
 
         :param event: pygame event or gui event (which extends the preceding)
-        :type event: pygame.Event
+        :type event: pygame.event.Event
         :return: whether the event was consumed
         :rtype: bool
         """

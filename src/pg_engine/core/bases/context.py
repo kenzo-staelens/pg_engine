@@ -1,5 +1,5 @@
 from contextvars import ContextVar, Token
-from typing import Any, final
+from typing import Any, cast, final
 
 from pg_engine.api import IRegistry
 
@@ -35,7 +35,7 @@ class Context:
 
     """Context manager for wrapping code execution with a context var."""
 
-    def __init__(self, **contexts: dict[str, Any]):
+    def __init__(self, **contexts: Any):  # noqa: ANN401
         self.tokens: list[tuple[ContextVar, Token]] = []
         self.contexts = contexts
 
@@ -43,7 +43,7 @@ class Context:
         for context, value in self.contexts.items():
             if not ContextRegistry.has(context):
                 ContextRegistry.register(context, ContextVar(context, default=None))
-            ctx = ContextRegistry.get(context)
+            ctx = cast('ContextVar', ContextRegistry.get(context))
             token = ctx.set(value)
             self.tokens.append((ctx, token))
 

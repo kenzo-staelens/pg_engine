@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 import pygame
 
@@ -27,7 +27,7 @@ class BaseGame(IGame):
     def gameloop(self) -> None:
         while self.running:
             # dt in milliseconds
-            dt = self.clock.tick(
+            dt = cast('pygame.Clock', self.clock).tick(
                 self.fps,
             )
             # triggers update scripts and such
@@ -65,7 +65,7 @@ class BaseGame(IGame):
         post_process: Callable[[IGameObject], None] | None = None,
     ) -> IGameObject:
         if post_process is None:
-            def post_process(go: IGameObject) -> IGameObject:
+            def post_process(go: IGameObject) -> None:
                 pass
         object_config = PrefabRegistry.get(object_def_name)
         gameobject = self.objectbuilder.build(object_def_name, object_config)

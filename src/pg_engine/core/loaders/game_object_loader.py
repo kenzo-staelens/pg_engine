@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import cast
 
 from pg_engine.api import (
     IComponent,
@@ -81,17 +82,21 @@ class ComponentBuilder:
         :rtype: tuple[str, TComponent]
         """  # noqa: E501
         c_type = component_def['type']
-        refname = component_def.get('refname', c_type)
+        refname = component_def.get('refname', c_type) or c_type
         args = component_def['args'] or {}
-        component_class: type[IComponent] | None = ClassRegistry.get(c_type)
+        component_class = cast(
+            'type[IComponent] | None',
+            ClassRegistry.get(c_type),
+        )
         if not component_class:
             logger.critical(
                 'Component[%s]: Could not find registry entry',
                 c_type,
             )
             sys.exit(ExitCodes.EXIT_CODE_NO_REGISTRY)
+        component_class = cast('type[IComponent]', component_class)
         try:
-            component = component_class(**args, source=game_object)
+            component = component_class(**args, source=cast('IGameObject', game_object))
         except Exception:
             logger.exception('An error occured while constructing a component')
             sys.exit(ExitCodes.EXIT_CODE_FATAL_CONSTRUCT)

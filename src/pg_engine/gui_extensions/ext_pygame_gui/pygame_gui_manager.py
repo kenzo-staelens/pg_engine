@@ -1,3 +1,5 @@
+from typing import cast
+
 import pygame
 import pygame_gui
 
@@ -17,7 +19,7 @@ class PygameGuiUIManager(IUIManager):
     def draw_ui(self, render_surface: pygame.Surface) -> None:
         self.manager.draw_ui(render_surface)
 
-    def process_events(self, event: pygame.Event) -> bool:
+    def process_events(self, event: pygame.event.Event) -> bool:
         return self.manager.process_events(event)
 
     def set_visual_debug_mode(self, state: bool) -> None:
@@ -34,9 +36,9 @@ class PygameGuiUIManager(IUIManager):
         self.size = ui_config['window_resolution']
 
     def set_active_scene(self, scene: str) -> None:  # noqa: PLR6301
-        UIRegistry.get(IGame().active_scene).hide()
-        UIRegistry.get(scene).show()
+        cast('pygame_gui.core.UIElement', UIRegistry.get(IGame().active_scene)).hide()
+        cast('pygame_gui.core.UIElement', UIRegistry.get(scene)).show()
 
     def hide_all(self) -> None:  # noqa: PLR6301
         for scene in IGame().scenes:
-            UIRegistry.get(scene).hide()
+            cast('pygame_gui.core.UIElement', UIRegistry.get(scene)).hide()

@@ -7,6 +7,7 @@ import pygame
 from .interface_gameobject import IGameObject
 from .interface_registry import IRegistry
 from .interface_script import IScript
+from .linker_plugin import PluginLinker, PluginRegistry
 
 
 @final
@@ -15,7 +16,8 @@ class ClassRegistry(IRegistry[type]):
 
     @classmethod
     def register(cls, entry: type, *, override: bool = False) -> bool:
-        return super().register(entry.__name__, entry, override=override)
+        linked = PluginLinker.link_plugin(entry)
+        return super().register(entry.__name__, linked, override=override)
 
 
 @final
@@ -24,7 +26,7 @@ class AssetRegistry(IRegistry[pygame.Surface]):
 
 
 @final
-class ScriptRegistry(IRegistry[IScript]):
+class ScriptRegistry(IRegistry[type[IScript]]):
     __singleton_key__ = 'ScriptRegistry'
 
 
@@ -46,6 +48,7 @@ __all__ = [
     'AssetRegistry',
     'ClassRegistry',
     'ObjectRegistry',
+    'PluginRegistry',
     'PrefabRegistry',
     'ScriptRegistry',
     'UIRegistry',

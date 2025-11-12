@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 from pg_engine.api import ICamera
 
@@ -20,26 +20,26 @@ class Camera2D(ICamera):
         :param angle: initial angle, defaults to 0
         :type angle: int, optional
         """
-        self.x = x
-        self.y = y
+        self.x: int | float = x
+        self.y: int | float = y
         self._rotation = angle
 
     @property
-    def position(self) -> tuple[int | float]:
+    def position(self) -> tuple[int | float, int | float]:
         return (self.x, self.y)
 
     @property
     def rotation(self) -> Iterable[int | float]:
         return (self._rotation,)
 
-    def move(self, move_data: Iterable[int | float], absolute: bool = False) -> None:
+    def move(self, move_data: Sequence[int | float], absolute: bool = False) -> None:
         if absolute:
             self.x, self.y = move_data
             return
         self.x += move_data[0]
         self.y += move_data[1]
 
-    def rotate(self, rotation: Iterable[int | float], absolute: bool = False) -> None:
+    def rotate(self, rotation: Sequence[int | float], absolute: bool = False) -> None:
         if absolute:
             self._rotation = rotation[0]
         self._rotation += rotation[0]

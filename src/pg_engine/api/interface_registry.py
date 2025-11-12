@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterable
 from typing import Literal
 
 from .singleton import Singleton
@@ -75,7 +76,7 @@ class IRegistry[T](Singleton):
         return instance.__registry[name]
 
     @classmethod
-    def get_typed[U](cls, name: str, expect_type: U) -> U | None:
+    def get_typed[U](cls, name: str, expect_type: type[U]) -> U | None:
         """
         Wrap .get with a typing sanity check and support for static type checking.
 
@@ -125,6 +126,11 @@ class IRegistry[T](Singleton):
         """Clear the registry."""
         instance = cls()
         instance.__registry = {}
+
+    @classmethod
+    def values(cls) -> Iterable[T]:
+        instance = cls()
+        return iter(instance.__registry.values())
 
 
 __all__ = [

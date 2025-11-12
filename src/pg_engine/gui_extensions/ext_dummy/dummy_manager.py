@@ -18,7 +18,7 @@ class DummyUIManager(IUIManager):
     def hide_all(self) -> None:
         pass
 
-    def process_events(self, event: pygame.Event) -> bool:  # noqa: ARG002, PLR6301
+    def process_events(self, event: pygame.event.Event) -> bool:  # noqa: ARG002, PLR6301
         return False
 
     def set_active_scene(self, scene: str) -> None:
@@ -28,4 +28,7 @@ class DummyUIManager(IUIManager):
         pass
 
     def update(self, dt: int) -> None:
+        pass
+
+    def configure(self, config_data: dict) -> None:
         pass

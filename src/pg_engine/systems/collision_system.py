@@ -2,6 +2,7 @@ import functools
 import logging
 from abc import abstractmethod
 from collections.abc import Callable
+from typing import cast
 
 import pygame
 
@@ -50,7 +51,7 @@ class CollisionScript(IScript, EventListener):
         self.store_phys = self.source.transform.position
 
     @listen(event_type=COLLISION, scope=Scope.LOCAL)
-    def on_collision(self, event: pygame.Event) -> None:  # noqa: ARG002
+    def on_collision(self, event: pygame.event.Event) -> None:  # noqa: ARG002
         """
         Collision event listener hook.
 
@@ -58,7 +59,7 @@ class CollisionScript(IScript, EventListener):
             when a collision occurs.
 
         :param event: pygame collision event
-        :type event: pygame.Event
+        :type event: pygame.event.Event
         """
         self.source.transform.move(self.store_phys, True)
 
@@ -136,7 +137,7 @@ class CollisionSystem(ICollisionSystem):
     def _create_collision_event(
         event_type: int,
         target: IColliderComponent,
-        collides_with: list[IColliderComponent],
+        collides_with: IColliderComponent,
         dt: int,
         is_system_event: bool = False,
     ) -> None:
@@ -148,21 +149,21 @@ class CollisionSystem(ICollisionSystem):
         :param target: target to send the event to
         :type target: IColliderComponent
         :param collides_with: source of the event
-        :type collides_with: list[IColliderComponent]
+        :type collides_with: IColliderComponent
         :param dt: milliseconds since last frame, added to event data
         :type dt: int
         :param is_system_event: is a system event, defaults to False
         :type is_system_event: bool, optional
         """
-        send_data = [
+        IEventSystem().send(
             event_type,
-            [target.source],
-            {
+            targets=[target.source],
+            data={
                 'collides': collides_with.source,
                 'dt': dt,
             },
-        ]
-        IEventSystem().send(*send_data, system=is_system_event)
+            system=is_system_event,
+        )
 
     def get_groups(self, interraction: frozenset[str], physics: bool) -> tuple[
         pygame.sprite.Group,
@@ -172,8 +173,8 @@ class CollisionSystem(ICollisionSystem):
         is_self_collision = False
         if len(interraction) == 1:
             is_self_collision = True
-            interraction = tuple(interraction) * 2
-        groups = []
+            interraction = cast('frozenset', tuple(interraction) * 2)
+        groups: list[pygame.sprite.Group] = []
         active_scene = IGame().active_scene
         for layer in interraction:
             group = pygame.sprite.Group(
@@ -185,7 +186,12 @@ class CollisionSystem(ICollisionSystem):
                 ],
             )
             groups.append(group)
-        return *groups, is_self_collision
+
+        # type checker straight up refuses to accept pygame.sprite.Group as known
+        return cast(
+            'tuple[pygame.sprite.Group, pygame.sprite.Group, bool]',
+            (*groups, is_self_collision),
+        )
 
     def add(self, collider_component: IColliderComponent, layer: str) -> None:
         layer_data = self.collision_layers.get(layer, [])

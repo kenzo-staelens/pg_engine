@@ -26,7 +26,7 @@ class IUIContainer:
 
 class UILoader[T](YamlLoader, ABC):
     @classmethod
-    def _validate_configs(cls, element: str, config: TUIConfig) -> bool:
+    def _validate_configs(cls, element: str, config: TUIConfig | dict) -> bool:
         """
         Verify whether required keys are available in a UI configuration.
 
@@ -119,7 +119,7 @@ class UILoader[T](YamlLoader, ABC):
 
             try:
                 ui_object = self.create_ui_object(
-                    # key,
+                    key,
                     object_class,
                     relative_rect,
                     anchors,
@@ -127,8 +127,17 @@ class UILoader[T](YamlLoader, ABC):
                 )
                 self.register_loaded(key, ui_object)
                 if 'parent' in conf:
-                    container: IUIContainer = self.registry.get(conf['parent'])
-                    container.add_element(ui_object)
+                    if self.registry:
+                        container: IUIContainer | None = self.registry.get(
+                            conf['parent'],
+                        )
+                        if container:
+                            container.add_element(ui_object)
+                    else:
+                        logger.warning(
+                            "Attempted to load UIobject '%s' but no registry found",
+                            conf['parent'],
+                        )
 
             except Exception:
                 # yes we can use generic exception, we do not know what errors

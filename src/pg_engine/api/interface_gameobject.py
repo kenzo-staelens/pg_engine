@@ -18,11 +18,11 @@ class IGameObject(ABC):
         Initialize the gameobject.
 
         :param scene: scene this gameobject belongs to
-        :type scene: IScene
+        :type scene: str
         :param name: name of this gameobject
         :type name: str
         """
-        self.scene: IScene = scene
+        self.scene: str = scene
         self.name = name
         self.components: IContainer[IComponent]
         self.parent: IGameObject | None = None

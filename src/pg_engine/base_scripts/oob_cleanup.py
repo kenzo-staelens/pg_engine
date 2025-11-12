@@ -1,3 +1,6 @@
+from collections.abc import Callable, Sequence
+from typing import cast
+
 from pg_engine.api import IScript
 
 
@@ -11,18 +14,18 @@ class OOBCleanup(IScript):
 
     __exports__ = 'oob_cleanup'
 
-    def __init__(self, bounds: list[tuple[str, str, int]], **kw):
+    def __init__(self, bounds: list[tuple[str, int]], **kw):
         super().__init__(**kw)
         self.bounds = bounds
 
     def update(self, dt: int) -> None:
         super().update(dt)
-        pos = self.source.transform.get_world_position()
-        if any(
-            getattr(float, op)(
-                pos[bound_idx],
-                value,
+        pos = cast('Sequence[int]', self.source.transform.get_world_position())
+        for bound_idx, (op, value) in enumerate(self.bounds):
+            operation = cast(
+                'Callable[[float, int], bool]',
+                getattr(float, op),
             )
-            for bound_idx, op, value in self.bounds
-        ):
-            self.source.destroy()
+            if operation(pos[bound_idx], value):
+                self.source.destroy()
+                break

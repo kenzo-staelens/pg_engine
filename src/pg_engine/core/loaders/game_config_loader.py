@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import pathlib
 import sys
+from typing import Any, cast
 
 from pg_engine.api import (
     IGame,
@@ -95,7 +96,7 @@ class GameConfigLoader(YamlLoader):
     def _validate_config_objects(
             cls,
             conf: TLoadableConfig,
-            verification_objects: dict[str],
+            verification_objects: dict[str, Any],
         ) -> bool:
         """
         Check if all configuration loaders and processors successfully loaded.
@@ -121,7 +122,7 @@ class GameConfigLoader(YamlLoader):
             logger.critical(
                 message,
                 key,
-                conf[key],
+                conf.get(key, None),
             )
         return valid
 
@@ -137,31 +138,52 @@ class GameConfigLoader(YamlLoader):
         :return: Full constructed game configuration.
         :rtype: TGlobalGameConfig
         """
-        loaded: TGlobalGameConfig = {}
+        loaded: dict[str, Any] = {}
         with Context(evaluate_lazy=False):
-            game_config: TConfigFile = super().load() or {}
+            game_config: TConfigFile = cast('TConfigFile', super().load() or {})
 
             if not self._validate_configs(game_config):
                 sys.exit(ExitCodes.EXIT_CODE_INVALID_CONFIG)
 
             for key, conf in game_config.items():
+                conf = cast('TLoadableConfig', conf)
                 if not self._validate_keys(key, conf):
                     sys.exit(ExitCodes.EXIT_CODE_INVALID_KEYS)
 
                 # aqcuire loaders and processors
-                loader: type[ILoader] = ClassRegistry.get(conf['loader'])
+                loader: type[ILoader] | None = cast(
+                    'type[ILoader] | None',
+                    ClassRegistry.get(conf['loader']),
+                )
+                if loader is None:
+                    logger.critical('loader %s does not exist', conf['loader'])
+                    sys.exit(ExitCodes.EXIT_CODE_FATAL_CONSTRUCT)
+                loader = cast('type[ILoader]', loader)
                 loader_args: dict = conf.get('loader_args') or {}
                 processor_args = {}
                 if 'processor' in conf:
-                    processor: IProcessor = ClassRegistry.get(conf['processor'])
-                    processor_args = conf.get('processor_args', {}) or {}
+                    processor: type[IProcessor] | None = cast(
+                        'type[IProcessor] | None',
+                        ClassRegistry.get(conf['processor']),
+                    )
+                    if processor is None:
+                        logger.critical('loader %s does not exist', conf['loader'])
+                        sys.exit(ExitCodes.EXIT_CODE_FATAL_CONSTRUCT)
+                    # also convert explicit none to {}
+                    processor_args: dict[str, Any] = conf.get(
+                        'processor_args',
+                        {},
+                    ) or {}
                 else:
                     # keep it as a dummy
                     # though invalid processors still get flagged
-                    processor = type(
-                        'DummyProcessor',
-                        (IProcessor,),
-                        {'process': lambda _, __: None},
+                    processor: type[IProcessor] = cast(
+                        'type[IProcessor]',
+                        type(
+                            'DummyProcessor',
+                            (IProcessor,),
+                            {'process': lambda _, __: None},
+                        ),
                     )
 
                 if not self._validate_config_objects(
@@ -175,14 +197,15 @@ class GameConfigLoader(YamlLoader):
                     sys.exit(ExitCodes.EXIT_CODE_INVALID_OBJECT)
 
                 # doing the actual work
+
                 loaded[key] = loader(
                     filename=conf['config'],
                     registry=conf.get('registry'),
                     root=self.root,
                     **loader_args,
                 ).load()
-                processor.process(loaded[key], processor_args)
-        return loaded
+                cast('IProcessor', processor).process(loaded[key], processor_args)
+        return cast('TGlobalGameConfig', loaded)
 
     @classmethod
     def runfrom(cls, config: str) -> None:

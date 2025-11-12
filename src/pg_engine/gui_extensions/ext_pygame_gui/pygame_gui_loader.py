@@ -28,7 +28,7 @@ class PygameGuiUILoader(UILoader[UIElement]):
     @classmethod
     def create_ui_object(
         cls,
-        # name: str,
+        name: str,  # noqa: ARG003
         object_class: type[UIElement],
         relative_rect: pygame.Rect,
         anchors: dict,
@@ -38,6 +38,7 @@ class PygameGuiUILoader(UILoader[UIElement]):
         # pygamegui needs the parent object *now* for calculating position
         # based on anchors -> lazy not allowed though you can sequence the ui without
         # circular dependencies
+        logger.critical('%s %s %s %s', object_class, relative_rect, anchors, definition)
         with Context(evaluate_lazy=True):
             return object_class(
                 relative_rect=relative_rect,

@@ -23,7 +23,7 @@ from .lazy_proxy import Proxy
 BASE_PATH = pathlib.Path(__file__).parent.parent.parent.parent
 
 
-def get_factory_method(registry: IRegistry, proxy: str) -> Callable:
+def get_factory_method[T](registry: IRegistry[T], proxy: str) -> Callable:
     """
     Create a factory method for lazy loader.
 
@@ -34,7 +34,7 @@ def get_factory_method(registry: IRegistry, proxy: str) -> Callable:
     :return: factory method used by :class:`Proxy`
     :rtype: Callable
     """
-    def factory_method[T]() -> T:
+    def factory_method() -> T | None:
         return registry.get(proxy)
     return factory_method
 
@@ -64,7 +64,7 @@ class ConsumeRefs(yaml.Loader):
 
 
 class YamlConstructors(ConsumeRefs):
-    def __init__(self, stream: yaml._ReadStream, root: None = None):
+    def __init__(self, stream: yaml._ReadStream, root: pathlib.PosixPath | None = None):
         super().__init__(stream)
         self.root = root
 
@@ -109,8 +109,10 @@ class YamlConstructors(ConsumeRefs):
         :rtype: :class:`~.base_library.core.loaders.Proxy`
         """
         mapping = self.construct_mapping(node)
-        reg: IRegistry = ClassRegistry.get(mapping['target_registry'])()
-        factory = get_factory_method(reg, mapping['proxies'])
+        reg_class = ClassRegistry.get(mapping['target_registry'])
+        if not reg_class:
+            return Proxy(lambda: None)
+        factory = get_factory_method(reg_class(), mapping['proxies'])
 
         return Proxy(factory)
 
@@ -150,7 +152,7 @@ class YamlConstructors(ConsumeRefs):
         # if not then the developer of this game shouldn't have to go through here
         # in the first place
 
-    def classget(self, node: None) -> type:
+    def classget(self, node: None) -> type | None:
         """
         Get a class in the :class:`ClassRegistry`.
 
@@ -187,10 +189,15 @@ class YamlConstructors(ConsumeRefs):
         if isinstance(node, yaml.nodes.MappingNode):
             initnode = self.construct_mapping(node, deep=True)
             cls = ClassRegistry.get(initnode['type'])
+            if not cls:
+                return None
             return cls(**initnode['args'])
         if isinstance(node, yaml.nodes.ScalarNode):
             initnode = self.construct_scalar(node)
-            return ClassRegistry.get(initnode)()
+            cls = ClassRegistry.get(initnode)
+            if not cls:
+                return None
+            return cls()
         return None
 
 
@@ -209,7 +216,7 @@ class YamlLoader(ILoader):
         self,
         filename: str,
         root: pathlib.PosixPath,
-        registry: IRegistry,
+        registry: IRegistry | None,
         useref: str | list[str] | None = None,
     ):
         """
@@ -261,7 +268,7 @@ class YamlLoader(ILoader):
         new_loader.get_event()
         if not new_loader.check_event(yaml.events.StreamEndEvent):
             new_loader.get_event()
-            new_loader.compose_node(None, None)
+            new_loader.compose_node(None, 0)
         anchors = new_loader.anchors
         new_loader.dispose()
         return anchors

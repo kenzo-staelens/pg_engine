@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+import logging
 import pathlib
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+from .interface_registry import IRegistry
 from .registry import ClassRegistry
 
-if TYPE_CHECKING:
-    from .interface_registry import IRegistry
+logger = logging.getLogger(__name__)
 
 
 class ILoader(ABC):
@@ -18,7 +19,7 @@ class ILoader(ABC):
         self,
         filename: str,
         root: pathlib.PosixPath,
-        registry: str | None = None,
+        registry: IRegistry | str | None = None,
     ):
         """
         Initialize the loader.
@@ -33,9 +34,11 @@ class ILoader(ABC):
         :type registry: str | None, optional
         """
         self.filename: str = filename
-        self.registry = None
         self.root = root
-        if registry is not None:
+        self.registry: IRegistry | None = None
+        if isinstance(registry, IRegistry):
+            self.registry: IRegistry = registry
+        elif isinstance(registry, str):
             self.registry: IRegistry = ClassRegistry.get(registry)
 
     @abstractmethod
@@ -51,7 +54,7 @@ class ILoader(ABC):
         self,
         name: str,
         loaded: object,
-        registry: IRegistry | None = None,
+        registry: type[IRegistry] | IRegistry | None = None,
     ) -> bool:
         """
         Register a loaded object into this loader's registry.
@@ -67,7 +70,10 @@ class ILoader(ABC):
         """
         if registry:
             return registry.register(name, loaded)
-        return self.registry.register(name, loaded)
+        if self.registry:
+            return self.registry.register(name, loaded)
+        logger.warning("Attempted to register '%s' with no registry", name)
+        return False
 
 
 __all__ = [

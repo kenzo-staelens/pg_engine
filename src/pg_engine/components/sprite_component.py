@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 import pygame
 
@@ -17,16 +17,33 @@ class SpriteComponent(IComponent, IRenderable):
         asset: str,
         layer: int,
         rectmode: str = 'topleft',
+        scaled: float | Sequence[float] | None = None,
         **kw,
     ):
+        """
+        Create a renderable sprite.
+
+        :param asset: Asset to render with
+        :type asset: str
+        :param layer: layer to render on (from IRenderable)
+        :type layer: int
+        :param rectmode: origin of rendering, defaults to 'topleft'
+        :type rectmode: str, optional
+        :param scaled: whether to scale the incoming asset and to what size, defaults to None
+        :type scaled: float | Iterable[float] | None, optional
+        """  # noqa: E501
         IComponent.__init__(self, **kw)
         IRenderable.__init__(self, layer, **kw)
-        self.asset = AssetRegistry.get(asset)
+        self.asset: pygame.surface.Surface | None = AssetRegistry.get(asset)
         self.rectmode = rectmode
+        if scaled is not None:
+            self.scale(scaled)
 
-    def get_render_data(self) -> tuple[pygame.Surface, Iterable[int | float], int]:
-        if not self.render_state:
-            return (None,) * 3
+    def get_render_data(
+        self,
+    ) -> tuple[pygame.Surface, Iterable[int | float], int] | tuple[None, None, None]:
+        if not self.render_state or not self.asset:
+            return (None, None, None)
         surface = pygame.transform.rotate(
             self.asset,
             self.source.transform.get_world_rotation()[0],
@@ -43,7 +60,7 @@ class SpriteComponent(IComponent, IRenderable):
             pygame.BLENDMODE_NONE,
         )
 
-    def scale(self, scale_by: float | Iterable[float]) -> None:
+    def scale(self, scale_by: float | Sequence[float]) -> None:
         self.asset = pygame.transform.scale_by(self.asset, scale_by)
         IRenderer().scheduled_update = True
 
@@ -63,7 +80,7 @@ class SpriteComponent(IComponent, IRenderable):
         :return: starting coordinate relative to (0, 0) by rectmode
         :rtype: tuple[int, int]
         """
-        source = self.asset.get_rect()
+        source = self.asset.get_rect() if self.asset else pygame.rect.Rect(0, 0, 0, 0)
         res = source.move(tuple(-axis for axis in source.topleft))
         return tuple(getattr(res, self.rectmode))
 

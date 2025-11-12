@@ -50,9 +50,11 @@ class RectColliderComponent(IColliderComponent):
     def add_internal(self, group: pygame.sprite.Group) -> None:
         """Do noting, Method expected by pygame groups."""
 
-    def get_render_data(self) -> tuple[pygame.Surface, Iterable[int | float], int]:
+    def get_render_data(
+        self,
+    ) -> tuple[pygame.Surface, Iterable[int | float], int] | tuple[None, None, None]:
         if not (IGame().debug_mode and self.debug_mode):
-            return (None,) * 3
+            return (None, None, None)
         surf = pygame.Surface(self.rect.size)
         color_collision = (255, 0, 0)
         color_trigger = (0, 0, 255)

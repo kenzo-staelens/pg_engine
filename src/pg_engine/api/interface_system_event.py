@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pygame
 
@@ -39,7 +39,7 @@ class IEventSystem(ISystem, Singleton, ABC):
         cls,
         event_type: int,
         targets: list[IGameObject] | None,
-        data: dict | None = None,
+        data: dict[str, Any] | None = None,
         system: bool = False,
     ) -> None:
         """
@@ -101,8 +101,8 @@ class IEventSystem(ISystem, Singleton, ABC):
     def register_event_hook(
         self,
         event_type: int,
-        listener: IGameObject | None,
-        hook: Callable[[pygame.Event], None],
+        listener: Any,  # noqa: ANN401
+        hook: Callable[[pygame.event.Event], None],
     ) -> None:
         """
         Register a callable to listen to events of scope :attr:`Scope.LOCAL`.
@@ -112,7 +112,7 @@ class IEventSystem(ISystem, Singleton, ABC):
         :param listener: listener owning this event hook
         :type listener: IGameObject | None
         :param hook: the callable functioning as eventlistener
-        :type hook: Callable[[pygame.Event], None]
+        :type hook: Callable[[pygame.event.Event], None]
         """
 
     @abstractmethod
@@ -120,7 +120,7 @@ class IEventSystem(ISystem, Singleton, ABC):
         self,
         event_type: int,
         scene: IScene | None,
-        hook: Callable[[pygame.Event], None],
+        hook: Callable[[pygame.event.Event], None],
     ) -> None:
         """
         Register a callable to listen to scope :attr:`Scope.BROADCAST_SCENE` and :attr:`Scope.BROADCAST`.
@@ -129,7 +129,7 @@ class IEventSystem(ISystem, Singleton, ABC):
         :type event_type: int
         :param scene: the scene this hook resides in or None for :attr:`Scope.BROADCAST`
         :param hook: the callable functioning as eventlistener
-        :type hook: Callable[[pygame.Event], None]
+        :type hook: Callable[[pygame.event.Event], None]
         """  # noqa: E501
 
 

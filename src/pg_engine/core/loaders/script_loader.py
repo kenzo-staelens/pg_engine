@@ -12,17 +12,33 @@ class ScriptLoader(ILoader):
 
     """Specialized loader for loading external (non engine) script files."""
 
-    def load(self) -> dict[str, IScript]:
+    def load(self) -> dict[str, type[IScript]]:
         """
         Load scripts from a directory and it's subdirectories into :class:`ScriptRegistry`.
 
         filename in this class is used as the root directory of scripts instead.
 
         :return: A mapping of a script's :term:`__exports__` key to the script object.
-        :rtype: dict[str, IScript]
+        :rtype: dict[str, type[IScript]]
         """  # noqa: E501
-        loaded: dict[str, IScript] = {}
-        p = Path(self.root / self.filename)
+        custom_loaded = self._load(self.filename)
+        pluginpath = Path(self.root)
+        for path in pluginpath.glob('plugins/*/scripts'):
+            print(path)
+            self._load(path.relative_to(pluginpath))
+        return custom_loaded
+
+    def _load(self, pathname: str | Path) -> dict[str, type[IScript]]:
+        """
+        Load scripts from a directory and it's subdirectories into :class:`ScriptRegistry`.
+
+        filename in this class is used as the root directory of scripts instead.
+
+        :return: A mapping of a script's :term:`__exports__` key to the script object.
+        :rtype: dict[str, type[IScript]]
+        """  # noqa: E501
+        loaded: dict[str, type[IScript]] = {}
+        p = Path(self.root / pathname)
         for file in p.iterdir():
             if file.stem.startswith('__') and file.stem != '__init__':
                 continue
@@ -52,7 +68,7 @@ class ScriptLoader(ILoader):
         return loaded
 
     @classmethod
-    def export_module(cls, module: ModuleType) -> list[tuple[str, IScript]]:
+    def export_module(cls, module: ModuleType) -> list[tuple[str, type[IScript]]]:
         """
         Load all exportable :class:`IScript` classes from file or module.
 
@@ -69,7 +85,7 @@ class ScriptLoader(ILoader):
         # for easier sanity checking after returning
         # from this module we use a list
         # instead of joining loaded | exported
-        exports: list[tuple[str, IScript]] = []
+        exports: list[tuple[str, type[IScript]]] = []
         module_all = module.__all__ if hasattr(module, '__all__') else dir(module)
         for entry in module_all:
             module_entry = getattr(module, entry)

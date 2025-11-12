@@ -35,7 +35,7 @@ class ISystemController(Singleton, ABC):
         self.event_system: IEventSystem
 
     @abstractmethod
-    def update(self) -> None:
+    def update(self, dt: int) -> None:
         """
         Update method passed throughout the entire engine called once per frame.
 

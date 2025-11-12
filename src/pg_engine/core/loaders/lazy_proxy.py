@@ -1,9 +1,12 @@
+import logging
 from collections.abc import Callable
 from typing import Any
 
 from lazy_object_proxy import Proxy as _Proxy
 
 from pg_engine.core import ContextRegistry
+
+logger = logging.getLogger(__name__)
 
 
 class env_cached_property:  # noqa: N801 no, because it's a decorator
@@ -48,6 +51,9 @@ class env_cached_property:  # noqa: N801 no, because it's a decorator
             return self
         value = self.func(instance)
         if ContextRegistry.get_context('evaluate_lazy') != False:  # noqa: E712 True default for None
+            if not hasattr(self.func, '__name__'):
+                logger.warning('Nameless functions not supported')
+                return value
             instance.__dict__[self.func.__name__] = value
         return value
 

@@ -1,0 +1,7 @@
+{
+  "name": "My Plugin",
+  "version": "1.0.0",
+  "author": "Kenzo Staelens",
+  "license": "GPL-2.1",
+  "requires": ["my_plugin_2"]
+}

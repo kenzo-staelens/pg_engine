@@ -3,9 +3,10 @@ from __future__ import annotations
 import functools
 import time
 from collections.abc import Callable
+from typing import cast
 
 
-def parameterized[**P](func: Callable[P]) -> Callable[P]:
+def parameterized[**P, T](func: Callable[P, T]) -> Callable[P, T]:
     """
     Decorate a decorator to handle passing arguments or leaving bare.
 
@@ -34,11 +35,11 @@ def parameterized[**P](func: Callable[P]) -> Callable[P]:
     def wrapper(fn: Callable | None = None, **kw) -> Callable:
         if fn is None:
             return functools.partial(func, **kw)
-        return func(fn, **kw)
+        return cast('Callable[P, T]', func(fn, **kw))
     return wrapper
 
 
-def one_shot[**P](oneshot_fn: Callable[P]) -> Callable[P]:
+def one_shot[**P, T](oneshot_fn: Callable[P, T]) -> Callable[P, T]:
     """
     Modify decorator behavior targeting unbound class methods.
 
@@ -54,11 +55,15 @@ def one_shot[**P](oneshot_fn: Callable[P]) -> Callable[P]:
     :return: the decorated decorator
     :rtype: Callable
     """
+
     class OneshotWrapper:
         def __init__(self, fn: Callable | None = None, **kwargs):
             self.fn = fn
             self.kwargs = kwargs
-            functools.update_wrapper(self, fn)
+            functools.update_wrapper(
+                cast('Callable', self),
+                cast('Callable', fn),
+            )
 
         def __set_name__(self, owner: type, name: str) -> None:
             # HACK: run the oneshot_fn decorator once then forget
@@ -92,7 +97,7 @@ def throttled[T, **P](delay: float) -> Callable[[Callable[P, T]], Callable[P, T]
 
     def throttled_wrapper(func: Callable[P, T]) -> Callable[P, T]:
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kw: P.kwargs) -> T:
+        def wrapper(*args: P.args, **kw: P.kwargs) -> T | None:
             nonlocal start
             now = time.time()
             if now - start < delay:
